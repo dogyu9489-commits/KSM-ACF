@@ -151,7 +151,12 @@
   .cal-date { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
   .cal-cell.other-month .cal-date { color: var(--text3); }
   .cal-event { font-size: 10.5px; padding: 2px 5px; border-radius: 3px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; font-weight: 500; }
+  .cal-event.deadline { font-weight: 600; }
+  .cal-event.deadline::before { content: "📋 "; font-size: 9px; }
+  .cal-event.deadline.done { opacity: 0.45; text-decoration: line-through; }
   .cal-deadline-dot { position: absolute; top: 4px; right: 5px; width: 6px; height: 6px; background: var(--danger); border-radius: 50%; }
+  .bir-item.flash { animation: flashHighlight 1.6s ease-out; }
+  @keyframes flashHighlight { 0%,30% { background: #fef3c7; } 100% { background: transparent; } }
 
   .sch-event-list { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-top: 16px; overflow: hidden; }
   .sch-event-list-header { padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: #fafaf8; }
@@ -1093,6 +1098,25 @@ function renderCalendar(){
   const startDow = firstDay.getDay();
   const lastDate = new Date(y, m+1, 0).getDate();
 
+  // Compute checklist dues visible on the calendar grid (6-week window covers prev month tail + this + next month lead)
+  const viewStart = new Date(y, m - 1, 1);
+  const viewEnd   = new Date(y, m + 2, 0, 23, 59, 59);
+  const checklistDues = getChecklistDuesInRange(viewStart, viewEnd);
+  const checklistByDate = {};
+  checklistDues.forEach(item => {
+    const k = fmtDate(item.due);
+    (checklistByDate[k] = checklistByDate[k] || []).push(item);
+  });
+  // Sort within each date: undone first, then by category order
+  const catSortOrder = { BIR:0, PEZA:1, SEC:2, LGU:3, PAYROLL:4 };
+  Object.values(checklistByDate).forEach(arr =>
+    arr.sort((a,b) =>
+      (a.done === b.done ? 0 : a.done ? 1 : -1) ||
+      ((catSortOrder[a.form.cat]||99) - (catSortOrder[b.form.cat]||99)) ||
+      a.form.code.localeCompare(b.form.code)
+    )
+  );
+
   const prevLast = new Date(y, m, 0).getDate();
   for(let i = startDow - 1; i >= 0; i--){
     addCell(new Date(y, m-1, prevLast - i), true);
@@ -1106,17 +1130,27 @@ function renderCalendar(){
     addCell(new Date(y, m+1, d), true);
   }
 
+  // --- Build merged month event/deadline list ---
   const monthEvents = _schEvents.filter(e => {
     const s = new Date(e.start), f = new Date(e.end || e.start);
     return (s.getFullYear()===y && s.getMonth()===m) || (f.getFullYear()===y && f.getMonth()===m) ||
            (s < new Date(y, m+1, 1) && f >= new Date(y, m, 1));
   });
+  // Only deadlines falling inside this specific month
+  const monthDeadlines = checklistDues.filter(item =>
+    item.due.getFullYear() === y && item.due.getMonth() === m
+  );
   const listEl = document.getElementById('schEventList');
-  document.getElementById('schEventCount').textContent = monthEvents.length ? `(${monthEvents.length} ${monthEvents.length===1?'event':'events'})` : '';
-  if(!monthEvents.length){
-    listEl.innerHTML = '<div class="empty">No events this month.</div>';
+  const totalMonth = monthEvents.length + monthDeadlines.length;
+  document.getElementById('schEventCount').textContent = totalMonth
+    ? `(${monthEvents.length} event${monthEvents.length===1?'':'s'} · ${monthDeadlines.length} deadline${monthDeadlines.length===1?'':'s'})`
+    : '';
+
+  if(!totalMonth){
+    listEl.innerHTML = '<div class="empty">No events or deadlines this month.</div>';
   } else {
-    listEl.innerHTML = monthEvents.map(e => {
+    // Render team events first, then deadlines sorted by date
+    const eventsHtml = monthEvents.map(e => {
       const cat = CAT_LABELS[e.category] || '';
       const dateStr = e.start === e.end || !e.end ? fmtDateShort(e.start) : `${fmtDateShort(e.start)} – ${fmtDateShort(e.end)}`;
       const canEdit = window.__me.role === 'admin' || e.authorName === window.__me.name;
@@ -1129,6 +1163,30 @@ function renderCalendar(){
         </div>
       </div>`;
     }).join('');
+
+    monthDeadlines.sort((a,b) => a.due - b.due || (a.done===b.done?0:a.done?1:-1));
+    const deadlinesHtml = monthDeadlines.map(item => {
+      const cat = item.form.cat || 'BIR';
+      const catLabel = CAT_PILL_LABELS[cat] || cat;
+      const codeLabel = (cat === 'BIR' ? 'BIR ' : '') + item.form.code;
+      const freqLabel = item.form.freq === 'MONTHLY' ? 'Monthly' : item.form.freq === 'QUARTERLY' ? 'Quarterly' : 'Annual';
+      const doneMark = item.done ? '<span style="color:#065f46;font-weight:600;">✓ Done</span> · ' : '';
+      return `<div class="sch-event-item" onclick="jumpToChecklistItem(${JSON.stringify(item.form).replace(/"/g,'&quot;')},${JSON.stringify(item.period).replace(/"/g,'&quot;')})" style="cursor:pointer;${item.done?'opacity:0.65;':''}">
+        <div class="sch-event-dot" style="background:${CAT_CHIP_COLORS[cat] || '#475569'}"></div>
+        <div class="sch-event-info">
+          <div class="sch-event-title">
+            <span class="cat-pill cat-${cat}" style="margin-right:4px;">${escapeHtml(catLabel)}</span>
+            ${escapeHtml(codeLabel)}
+            <span style="color:var(--text2);font-weight:400;"> · ${escapeHtml(item.form.desc || '')}</span>
+          </div>
+          <div class="sch-event-date">📅 Due ${fmtDateShort(item.due)} · ${freqLabel} ${doneMark ? '· ' + doneMark : ''}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    listEl.innerHTML =
+      (monthEvents.length   ? `<div style="padding:10px 16px;font-size:11px;font-weight:600;color:var(--text2);background:#fafaf8;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.5px;">Team Events</div>${eventsHtml}` : '') +
+      (monthDeadlines.length? `<div style="padding:10px 16px;font-size:11px;font-weight:600;color:var(--text2);background:#fafaf8;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:0.5px;">Compliance Deadlines</div>${deadlinesHtml}` : '');
   }
 
   function addCell(d, other){
@@ -1147,7 +1205,14 @@ function renderCalendar(){
       const s = new Date(e.start), f = new Date(e.end || e.start);
       return d >= new Date(s.getFullYear(),s.getMonth(),s.getDate()) && d <= new Date(f.getFullYear(),f.getMonth(),f.getDate());
     });
-    dayEvents.slice(0, 3).forEach(e => {
+    const dayChecklist = checklistByDate[dStr] || [];
+    const totalItems = dayEvents.length + dayChecklist.length;
+    const MAX_SHOW = 3;
+    let shown = 0;
+
+    // Team events first
+    for(const e of dayEvents){
+      if(shown >= MAX_SHOW) break;
       const chip = document.createElement('div');
       chip.className = 'cal-event';
       chip.style.background = e.color || CAT_COLORS[e.category] || '#1c3a5e';
@@ -1157,18 +1222,30 @@ function renderCalendar(){
         openSchForm(e.id);
       };
       cell.appendChild(chip);
-    });
-    if(dayEvents.length > 3){
+      shown++;
+    }
+    // Then checklist deadlines
+    for(const item of dayChecklist){
+      if(shown >= MAX_SHOW) break;
+      const chip = document.createElement('div');
+      chip.className = 'cal-event cal-checklist-chip';
+      chip.style.background = CAT_CHIP_COLORS[item.form.cat] || '#475569';
+      if(item.done) chip.style.opacity = '0.55';
+      const prefix = item.form.cat === 'BIR' ? 'BIR ' : '';
+      chip.textContent = (item.done ? '✓ ' : '📋 ') + prefix + item.form.code;
+      chip.title = `${item.form.desc || ''} — Due ${fmtDate(item.due)}${item.done ? ' (Done)' : ''}`;
+      chip.onclick = (ev) => {
+        ev.stopPropagation();
+        jumpToChecklistItem(item.form, item.period);
+      };
+      cell.appendChild(chip);
+      shown++;
+    }
+    if(totalItems > MAX_SHOW){
       const more = document.createElement('div');
       more.style.cssText = 'font-size:9.5px;color:var(--text3);padding:0 4px;';
-      more.textContent = `+${dayEvents.length - 3} more`;
+      more.textContent = `+${totalItems - MAX_SHOW} more`;
       cell.appendChild(more);
-    }
-    if(window.__birDeadlineSet && window.__birDeadlineSet.has(dStr)){
-      const dot = document.createElement('div');
-      dot.className = 'cal-deadline-dot';
-      dot.title = 'BIR Deadline';
-      cell.appendChild(dot);
     }
     grid.appendChild(cell);
   }
@@ -1277,6 +1354,86 @@ window.deleteSchEvent = deleteSchEvent;
 const CAT_PILL_LABELS = {
   BIR: 'BIR', PEZA: 'PEZA', SEC: 'SEC', LGU: 'LGU', PAYROLL: 'Payroll'
 };
+
+// Vibrant background colors for calendar chips (white text on top)
+const CAT_CHIP_COLORS = {
+  BIR:     '#dc2626',
+  PEZA:    '#2563eb',
+  SEC:     '#4f46e5',
+  LGU:     '#db2777',
+  PAYROLL: '#059669'
+};
+
+// Returns all checklist due date occurrences whose due date falls within [start, end]
+function getChecklistDuesInRange(start, end){
+  if(!_birForms || !_birForms.length) return [];
+  const results = [];
+  const startY = start.getFullYear();
+  const endY = end.getFullYear();
+  _birForms.forEach(form => {
+    if(form.freq === 'MONTHLY'){
+      for(let y = startY; y <= endY + 1; y++){
+        for(let m = 1; m <= 12; m++){
+          const period = { year: y, month: m, q: Math.floor((m-1)/3)+1 };
+          const due = computeDueDate(form, period);
+          if(due >= start && due <= end){
+            const pk = periodKey(form, period);
+            results.push({ form, period, due, pk, done: !!_birCompletions[`${form.id}__${pk}`] });
+          }
+        }
+      }
+    } else if(form.freq === 'QUARTERLY'){
+      for(let y = startY - 1; y <= endY + 1; y++){
+        for(let q = 1; q <= 4; q++){
+          const period = { year: y, q, month: q*3 };
+          const due = computeDueDate(form, period);
+          if(due >= start && due <= end){
+            const pk = periodKey(form, period);
+            results.push({ form, period, due, pk, done: !!_birCompletions[`${form.id}__${pk}`] });
+          }
+        }
+      }
+    } else if(form.freq === 'ANNUAL'){
+      for(let y = startY - 1; y <= endY + 1; y++){
+        const period = { year: y, month: form.dueMonth || 1, q: Math.floor(((form.dueMonth||1)-1)/3)+1 };
+        const due = computeDueDate(form, period);
+        if(due >= start && due <= end){
+          const pk = periodKey(form, period);
+          results.push({ form, period, due, pk, done: !!_birCompletions[`${form.id}__${pk}`] });
+        }
+      }
+    }
+  });
+  return results;
+}
+
+// Navigate to checklist page and select the period containing this item's due date
+function jumpToChecklistItem(form, period){
+  switchPage('bir');
+  setTimeout(() => {
+    const sel = document.getElementById('birPeriodSelect');
+    for(const opt of sel.options){
+      let o;
+      try { o = JSON.parse(opt.value); } catch(e){ continue; }
+      let match = o.year === period.year;
+      if(match && form.freq === 'MONTHLY')   match = o.month === period.month;
+      if(match && form.freq === 'QUARTERLY') match = o.q === period.q;
+      // Annual: just first option with matching year works
+      if(match){
+        sel.value = opt.value;
+        _birCurrentPeriod = o;
+        renderBirList();
+        // Highlight the item briefly by scrolling list into view
+        setTimeout(() => {
+          const listEl = document.getElementById('birList');
+          if(listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+        break;
+      }
+    }
+  }, 60);
+}
+window.jumpToChecklistItem = jumpToChecklistItem;
 
 // Compress image client-side before upload (Firestore 1MB per-doc limit)
 function compressImage(file, maxWidth = 1400, quality = 0.82){
@@ -1418,6 +1575,7 @@ function initBir(){
     });
     renderBirList();
     renderDashboardBir();
+    if(typeof renderCalendar === 'function') renderCalendar();
   });
 
   onSnapshot(collection(db, NS + '_bir_completions'), snap => {
@@ -1426,6 +1584,7 @@ function initBir(){
     renderBirList();
     renderDashboardBir();
     if(_photoCtx) renderPhotoGallery();
+    if(typeof renderCalendar === 'function') renderCalendar();
   });
 
   onSnapshot(collection(db, NS + '_bir_attachments'), snap => {
@@ -1532,10 +1691,9 @@ function getDdayInfo(due, done){
 function renderBirList(){
   const el = document.getElementById('birList');
   if(!_birForms.length){
-    el.innerHTML = '<div class="empty">No BIR forms registered yet. Click "+ Add Form" to create one.</div>';
+    el.innerHTML = '<div class="empty">No checklist items yet. Click "+ Add Item" to create one.</div>';
     updateBirTabCounts();
     updateBirTabBadge();
-    updateBirDeadlineSet();
     return;
   }
   if(!_birCurrentPeriod){
@@ -1571,7 +1729,7 @@ function renderBirList(){
     const photosHtml = `<div class="bir-photos">${thumbs}${countExtra}${addBtn}${photoCount}</div>`;
 
     return `
-      <div class="bir-item ${done ? 'done':''}">
+      <div class="bir-item ${done ? 'done':''}" data-bir-id="${f.id}">
         <div class="bir-check ${done ? 'checked':''}" onclick="toggleBirDone('${f.id}', '${pk}')">${done ? '✓' : ''}</div>
         <div class="bir-info">
           <div class="bir-form-code">
@@ -1602,7 +1760,6 @@ function renderBirList(){
 
   updateBirTabCounts();
   updateBirTabBadge();
-  updateBirDeadlineSet();
 }
 window.renderBirList = renderBirList;
 
@@ -1639,19 +1796,6 @@ function updateBirTabBadge(){
   } else {
     badge.style.display = 'none';
   }
-}
-
-function updateBirDeadlineSet(){
-  const set = new Set();
-  if(_birCurrentPeriod){
-    _birForms.forEach(f => {
-      const pk = periodKey(f, _birCurrentPeriod);
-      if(_birCompletions[`${f.id}__${pk}`]) return;
-      const due = computeDueDate(f, _birCurrentPeriod);
-      set.add(fmtDate(due));
-    });
-  }
-  window.__birDeadlineSet = set;
 }
 
 async function toggleBirDone(formId, pk){
