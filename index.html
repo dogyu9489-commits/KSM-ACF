@@ -1,0 +1,2159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KSM ACF TEAM</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ========== ROOT / BASE ========== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f7f7f5;
+    --surface: #ffffff;
+    --border: #e4e4e0;
+    --border2: #d0d0cc;
+    --text: #1a1a18;
+    --text2: #6b6b68;
+    --text3: #a0a09c;
+    --accent: #1c3a5e;
+    --accent-light: #e8f0fb;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --ok: #16a34a;
+    --warn: #d97706;
+    --danger: #dc2626;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ========== PASSWORD SCREEN ========== */
+  .pw-screen { position: fixed; inset: 0; background: #1c3a5e; display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px; }
+  .pw-box { background: #fff; border-radius: 16px; padding: 40px 36px; width: 100%; max-width: 380px; text-align: center; }
+  .pw-logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 34px; letter-spacing: 2px; color: #1c3a5e; margin-bottom: 4px; }
+  .pw-title { font-size: 16px; font-weight: 600; color: #1a1a18; margin-bottom: 6px; letter-spacing: 0.3px; }
+  .pw-sub { font-size: 13px; color: #6b6b68; margin-bottom: 22px; line-height: 1.5; }
+  .pw-input-name { width: 100%; padding: 11px 16px; border: 1.5px solid #e4e4e0; border-radius: 8px; font-size: 15px; text-align: center; outline: none; font-family: inherit; margin-bottom: 10px; }
+  .pw-input-name:focus { border-color: #1c3a5e; }
+  .pw-input { width: 100%; padding: 12px 16px; border: 1.5px solid #e4e4e0; border-radius: 8px; font-size: 15px; text-align: center; letter-spacing: 2px; outline: none; font-family: inherit; margin-bottom: 12px; }
+  .pw-input:focus { border-color: #1c3a5e; }
+  .pw-btn { width: 100%; padding: 12px; background: #1c3a5e; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
+  .pw-btn:hover { opacity: 0.88; }
+  .pw-error { font-size: 13px; color: #cc0000; margin-top: 10px; min-height: 18px; }
+
+  /* ========== TOP BAR ========== */
+  .topbar { background: var(--accent); color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .topbar-title { font-size: 16px; font-weight: 600; letter-spacing: -0.2px; display: flex; align-items: center; gap: 10px; }
+  .topbar-title .logo-mark { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 1.5px; background: rgba(255,255,255,0.14); padding: 3px 8px; border-radius: 4px; font-size: 13px; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .presence-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
+  .live-txt { font-size: 12px; opacity: 0.85; }
+  .presence-chip { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.18); border-radius: 20px; padding: 3px 10px 3px 6px; font-size: 12px; }
+  .presence-chip-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+  .presence-chip-admin { background: rgba(255,215,0,0.25); }
+  .presence-chip-name { font-weight: 500; }
+  .presence-chip-role { font-size: 10px; opacity: 0.8; }
+
+  /* ========== NAV ========== */
+  .page-nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; gap: 4px; overflow-x: auto; position: sticky; top: 56px; z-index: 90; }
+  .page-tab { background: none; border: none; padding: 14px 16px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent; white-space: nowrap; position: relative; transition: color 0.15s; display: flex; align-items: center; gap: 6px; }
+  .page-tab:hover { color: var(--text); }
+  .page-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab-badge { background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; border-radius: 10px; padding: 1px 6px; line-height: 1.3; min-width: 16px; text-align: center; }
+
+  .page-content { display: none; }
+  .page-content.active { display: block; }
+
+  /* ========== CONTAINER ========== */
+  .container { max-width: 1100px; margin: 0 auto; padding: 22px 20px; }
+  .page-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+  .page-title { font-size: 19px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .page-subtitle { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+  /* ========== BUTTONS ========== */
+  .btn { border: 1px solid var(--border2); background: var(--surface); color: var(--text2); border-radius: var(--radius-sm); padding: 7px 13px; font-size: 13px; cursor: pointer; font-family: inherit; transition: all 0.1s; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+  .btn:hover { background: var(--bg); border-color: var(--text2); color: var(--text); }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-primary:hover { opacity: 0.88; background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-cancel { padding: 9px 18px; font-size: 14px; }
+  .btn-save { padding: 9px 22px; font-size: 14px; }
+  .btn-danger { color: #dc2626; border-color: #f5c0c0; }
+  .btn-danger:hover { background: #fff5f5; border-color: #dc2626; color: #dc2626; }
+  .btn-ghost { background: transparent; border: none; color: var(--text2); padding: 4px 6px; cursor: pointer; font-family: inherit; font-size: 13px; }
+  .btn-ghost:hover { color: var(--text); }
+
+  /* ========== STATS ========== */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; position: relative; overflow: hidden; }
+  .stat-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .stat-value { font-size: 26px; font-weight: 700; color: var(--text); font-family: 'Barlow Condensed', sans-serif; }
+  .stat-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .stat.accent { border-left: 3px solid var(--accent); }
+  .stat.warn { border-left: 3px solid var(--warn); }
+  .stat.danger { border-left: 3px solid var(--danger); }
+  .stat.ok { border-left: 3px solid var(--ok); }
+
+  /* ========== CARD ========== */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .card-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
+  .card-body { padding: 14px 16px; }
+  .card-body.flush { padding: 0; }
+
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 820px) { .dash-grid { grid-template-columns: 1fr; } }
+
+  .empty { text-align: center; padding: 30px 16px; color: var(--text3); font-size: 13px; }
+
+  /* ========== NOTICES ========== */
+  .notice-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+  .notice-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .notice-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .notice-meta { font-size: 11px; color: var(--text3); margin-top: 3px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .notice-meta-author { font-weight: 600; color: var(--text2); }
+  .notice-body { font-size: 13px; color: var(--text); line-height: 1.65; white-space: pre-wrap; margin-top: 4px; }
+  .notice-files { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .notice-file { display: inline-flex; align-items: center; gap: 5px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 12px; color: var(--text); text-decoration: none; cursor: pointer; }
+  .notice-file:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+  .notice-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+  /* ========== MODAL ========== */
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+  .overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: var(--radius); padding: 26px; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+  .modal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .modal-title { font-size: 16px; font-weight: 600; }
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12px; font-weight: 600; color: var(--text2); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 9px 12px; border: 1px solid var(--border2); border-radius: var(--radius-sm); font-size: 14px; color: var(--text); outline: none; font-family: inherit; background: var(--surface); }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); }
+  .form-group textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+  /* ========== SCHEDULE (CAL) ========== */
+  .sch-wrap { max-width: 1100px; margin: 0 auto; padding: 22px 20px; }
+  .sch-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+  .sch-title { font-size: 19px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .sch-nav { display: flex; align-items: center; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 2px; }
+  .sch-nav button { background: none; border: none; padding: 6px 10px; font-size: 16px; cursor: pointer; color: var(--text2); border-radius: 4px; font-family: inherit; }
+  .sch-nav button:hover { background: var(--bg); color: var(--text); }
+  .sch-month-label { font-size: 14px; font-weight: 600; color: var(--text); padding: 0 8px; min-width: 130px; text-align: center; }
+
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .cal-dow { background: #f0f0ec; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+  .cal-cell { background: var(--surface); min-height: 88px; padding: 5px 6px; cursor: pointer; transition: background 0.1s; position: relative; }
+  .cal-cell:hover { background: #fafaf8; }
+  .cal-cell.other-month { background: #fafaf8; color: var(--text3); }
+  .cal-cell.today { background: var(--accent-light); }
+  .cal-cell.today .cal-date { color: var(--accent); font-weight: 700; }
+  .cal-date { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .cal-cell.other-month .cal-date { color: var(--text3); }
+  .cal-event { font-size: 10.5px; padding: 2px 5px; border-radius: 3px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; font-weight: 500; }
+  .cal-deadline-dot { position: absolute; top: 4px; right: 5px; width: 6px; height: 6px; background: var(--danger); border-radius: 50%; }
+
+  .sch-event-list { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-top: 16px; overflow: hidden; }
+  .sch-event-list-header { padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: #fafaf8; }
+  .sch-event-item { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .sch-event-item:last-child { border-bottom: none; }
+  .sch-event-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .sch-event-info { flex: 1; min-width: 0; }
+  .sch-event-title { font-size: 13px; font-weight: 500; color: var(--text); }
+  .sch-event-date { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .sch-event-desc { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .sch-color-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .sch-color-swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+  .sch-color-swatch.selected { border-color: var(--text); }
+
+  /* ========== BIR CHECKLIST ========== */
+  .bir-tabs { display: flex; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .bir-tab { background: none; border: none; padding: 10px 14px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.1s; display: flex; align-items: center; gap: 5px; }
+  .bir-tab:hover { color: var(--text); }
+  .bir-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .bir-tab-count { background: var(--bg); color: var(--text2); font-size: 10px; font-weight: 700; border-radius: 10px; padding: 1px 6px; line-height: 1.3; min-width: 16px; text-align: center; }
+  .bir-tab.active .bir-tab-count { background: var(--accent-light); color: var(--accent); }
+
+  .bir-list { display: flex; flex-direction: column; gap: 8px; }
+  .bir-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; display: flex; align-items: center; gap: 12px; transition: all 0.1s; }
+  .bir-item:hover { border-color: var(--border2); }
+  .bir-item.done { background: #f6faf6; border-color: #d4e7d4; }
+  .bir-check { width: 22px; height: 22px; border: 2px solid var(--border2); border-radius: 6px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; transition: all 0.1s; background: #fff; }
+  .bir-check:hover { border-color: var(--accent); }
+  .bir-check.checked { background: var(--ok); border-color: var(--ok); }
+  .bir-info { flex: 1; min-width: 0; }
+  .bir-form-code { font-size: 14px; font-weight: 700; color: var(--text); font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.5px; }
+  .bir-form-desc { font-size: 12px; color: var(--text2); margin-top: 1px; line-height: 1.4; }
+  .bir-done-meta { font-size: 11px; color: var(--ok); margin-top: 3px; font-weight: 500; }
+  .bir-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .bir-dday { font-size: 11px; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 12px; }
+  .bir-dday.future { background: var(--bg); color: var(--text2); }
+  .bir-dday.soon { background: #fef3c7; color: #92400e; }
+  .bir-dday.urgent { background: #fee2e2; color: #991b1b; }
+  .bir-dday.overdue { background: #dc2626; color: #fff; }
+  .bir-dday.done { background: #d1fae5; color: #065f46; }
+  .bir-actions { display: flex; gap: 4px; }
+
+  .bir-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+
+  .bir-period-select { padding: 7px 11px; border: 1px solid var(--border2); border-radius: var(--radius-sm); font-size: 13px; background: var(--surface); color: var(--text); outline: none; font-family: inherit; cursor: pointer; }
+  .bir-period-select:focus { border-color: var(--accent); }
+
+  .bir-freq-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text3); padding: 2px 6px; border: 1px solid var(--border); border-radius: 3px; }
+
+  .cat-pill { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 3px; text-transform: uppercase; }
+  .cat-BIR     { background:#fee2e2; color:#991b1b; }
+  .cat-PEZA    { background:#dbeafe; color:#1e40af; }
+  .cat-SEC     { background:#e0e7ff; color:#3730a3; }
+  .cat-LGU     { background:#fce7f3; color:#9d174d; }
+  .cat-PAYROLL { background:#d1fae5; color:#065f46; }
+
+  .bir-photos { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; align-items: center; }
+  .bir-photo-thumb { width: 36px; height: 36px; border-radius: 4px; object-fit: cover; cursor: pointer; border: 1px solid var(--border); background: #fafaf8; }
+  .bir-photo-thumb:hover { border-color: var(--accent); }
+  .bir-photo-add { width: 36px; height: 36px; border: 1.5px dashed var(--border2); border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text3); font-size: 14px; background: #fafaf8; transition: all 0.1s; }
+  .bir-photo-add:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .bir-photo-count { font-size: 11px; color: var(--text3); margin-left: 4px; }
+
+  .photo-gallery-item { position: relative; width: 90px; height: 90px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+  .photo-gallery-item img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+  .photo-gallery-del { position: absolute; top: 2px; right: 2px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.7); color: #fff; border: none; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .photo-gallery-del:hover { background: #dc2626; }
+  .photo-gallery-meta { position: absolute; bottom: 0; left: 0; right: 0; padding: 3px 5px; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); color: #fff; font-size: 9px; line-height: 1.2; }
+
+  /* ========== DASHBOARD ========== */
+  .dash-list-item { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .dash-list-item:last-child { border-bottom: none; }
+  .dash-list-item-main { flex: 1; min-width: 0; }
+  .dash-list-item-title { font-size: 13px; font-weight: 500; color: var(--text); }
+  .dash-list-item-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .dash-dday-chip { font-size: 11px; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 12px; flex-shrink: 0; }
+
+  /* ========== CHAT ========== */
+  .chat-fab { position: fixed; bottom: 24px; right: 24px; width: 52px; height: 52px; border-radius: 50%; background: var(--accent); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,0.25); z-index: 500; transition: transform 0.15s; font-size: 22px; }
+  .chat-fab:hover { transform: scale(1.08); }
+  .chat-fab-badge { position: absolute; top: 6px; right: 6px; min-width: 16px; height: 16px; padding: 0 4px; background: #ef4444; border-radius: 8px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; color: #fff; }
+  .chat-panel { position: fixed; bottom: 84px; right: 24px; width: 340px; max-width: calc(100vw - 32px); height: 480px; background: var(--surface); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); display: flex; flex-direction: column; z-index: 499; overflow: hidden; transition: opacity 0.2s, transform 0.2s; }
+  .chat-panel.hidden { opacity: 0; pointer-events: none; transform: translateY(12px); }
+  .chat-header { background: var(--accent); color: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .chat-header-title { font-size: 14px; font-weight: 600; }
+  .chat-close { background: none; border: none; color: #fff; cursor: pointer; font-size: 18px; opacity: 0.8; padding: 2px 4px; }
+  .chat-close:hover { opacity: 1; }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .chat-msg { display: flex; flex-direction: column; max-width: 80%; }
+  .chat-msg.me { align-self: flex-end; align-items: flex-end; }
+  .chat-msg.other { align-self: flex-start; align-items: flex-start; }
+  .chat-msg-meta { font-size: 10px; color: var(--text3); margin-bottom: 2px; display: flex; align-items: center; gap: 4px; }
+  .chat-msg-meta-admin { color: #c9961a; font-weight: 600; }
+  .chat-msg-bubble { padding: 8px 12px; border-radius: 12px; font-size: 13px; line-height: 1.5; word-break: break-word; white-space: pre-wrap; }
+  .chat-msg.me .chat-msg-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+  .chat-msg.other .chat-msg-bubble { background: #f0f0ec; color: var(--text); border-bottom-left-radius: 4px; }
+  .chat-msg-time { font-size: 10px; color: var(--text3); margin-top: 2px; }
+  .chat-msg-wrap { display: flex; align-items: flex-end; gap: 4px; }
+  .chat-msg.me .chat-msg-wrap { flex-direction: row-reverse; }
+  .chat-msg-del { background: none; border: none; cursor: pointer; font-size: 13px; opacity: 0; padding: 2px; color: var(--text3); transition: opacity 0.15s; flex-shrink: 0; }
+  .chat-msg:hover .chat-msg-del { opacity: 0.6; }
+  .chat-msg-del:hover { opacity: 1 !important; color: #cc0000; }
+  .chat-system { text-align: center; font-size: 11px; color: var(--text3); padding: 4px 0; }
+  .chat-input-wrap { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); flex-shrink: 0; }
+  .chat-input { flex: 1; padding: 8px 12px; border: 1.5px solid var(--border2); border-radius: 20px; font-size: 13px; outline: none; font-family: inherit; color: var(--text); background: var(--bg); }
+  .chat-input:focus { border-color: var(--accent); }
+  .chat-send { background: var(--accent); color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 16px; }
+  .chat-send:hover { opacity: 0.88; }
+
+  /* ========== LOADING ========== */
+  .loading { text-align: center; padding: 48px; color: var(--text2); font-size: 14px; }
+  .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ========== NOTIF TOAST ========== */
+  .toast-wrap { position: fixed; top: 70px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 600; max-width: 320px; }
+  .toast { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); padding: 10px 14px; animation: slideIn 0.25s ease-out; }
+  .toast.ok { border-left-color: var(--ok); }
+  .toast.warn { border-left-color: var(--warn); }
+  .toast.danger { border-left-color: var(--danger); }
+  .toast-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .toast-body { font-size: 12px; color: var(--text2); line-height: 1.4; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+  /* ========== MOBILE ========== */
+  @media (max-width: 640px) {
+    .topbar { padding: 0 14px; }
+    .topbar-title { font-size: 14px; }
+    .live-txt { display: none; }
+    .page-nav { padding: 0 10px; }
+    .page-tab { padding: 12px 10px; font-size: 12px; }
+    .container, .sch-wrap { padding: 16px 14px; }
+    .cal-cell { min-height: 60px; padding: 3px 4px; }
+    .cal-event { font-size: 9.5px; padding: 1px 3px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stat-value { font-size: 22px; }
+    .modal { padding: 20px; }
+    .chat-panel { bottom: 76px; right: 12px; width: calc(100vw - 24px); height: 70vh; }
+    .chat-fab { right: 14px; bottom: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ PASSWORD SCREEN ============ -->
+<div class="pw-screen" id="pwScreen">
+  <div class="pw-box">
+    <div class="pw-logo">KSM ACF</div>
+    <div class="pw-title">Finance Team Intranet</div>
+    <div class="pw-sub">For authorized finance team members only.<br>Please enter your name and password.</div>
+    <input class="pw-input-name" type="text" id="pwName" placeholder="Your Name (e.g. Juan Dela Cruz)" maxlength="20" onkeydown="if(event.key==='Enter')document.getElementById('pwInput').focus()">
+    <input class="pw-input" type="password" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="pw-btn" onclick="checkPw()">Sign In</button>
+    <div class="pw-error" id="pwError"></div>
+  </div>
+</div>
+
+<!-- ============ MAIN ============ -->
+<div id="mainWrap" style="display:none">
+
+<div class="topbar">
+  <div class="topbar-title">
+    <span class="logo-mark">KSM ACF</span>
+    <span>KSM ACF TEAM</span>
+  </div>
+  <div class="topbar-right">
+    <div class="presence-bar" id="presenceBar">
+      <div class="live-dot"></div>
+      <span class="live-txt">Connecting...</span>
+    </div>
+  </div>
+</div>
+
+<nav class="page-nav">
+  <button class="page-tab active" data-page="dash" onclick="switchPage('dash')">📊 Dashboard</button>
+  <button class="page-tab" data-page="notice" onclick="switchPage('notice')">📢 Announcements</button>
+  <button class="page-tab" data-page="schedule" onclick="switchPage('schedule')">📅 Team Schedule</button>
+  <button class="page-tab" data-page="bir" onclick="switchPage('bir')">
+    ✅ Checklist
+    <span class="tab-badge" id="birTabBadge" style="display:none">0</span>
+  </button>
+</nav>
+
+<!-- ============ PAGE: DASHBOARD ============ -->
+<div id="page-dash" class="page-content active">
+  <div class="container">
+    <div class="page-heading">
+      <div>
+        <div class="page-title">📊 Dashboard</div>
+        <div class="page-subtitle" id="dashSubtitle">Your daily tasks and upcoming deadlines at a glance.</div>
+      </div>
+    </div>
+
+    <div class="stats" id="dashStats">
+      <div class="stat accent"><div class="stat-label">Due Today</div><div class="stat-value" id="stTodayDue">—</div><div class="stat-sub" id="stTodayDueSub">—</div></div>
+      <div class="stat warn"><div class="stat-label">Due This Week</div><div class="stat-value" id="stWeekDue">—</div><div class="stat-sub">Within 7 days</div></div>
+      <div class="stat danger"><div class="stat-label">Overdue</div><div class="stat-value" id="stOverdue">—</div><div class="stat-sub">Needs attention</div></div>
+      <div class="stat ok"><div class="stat-label">On Leave Today</div><div class="stat-value" id="stOnLeave">—</div><div class="stat-sub" id="stOnLeaveSub">Team status</div></div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚡ Upcoming Deadlines</div>
+          <button class="btn-ghost" onclick="switchPage('bir')">View all →</button>
+        </div>
+        <div class="card-body flush" id="dashUpcomingBir">
+          <div class="empty">Loading...</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📅 Team Today</div>
+          <button class="btn-ghost" onclick="switchPage('schedule')">Calendar →</button>
+        </div>
+        <div class="card-body flush" id="dashTeamToday">
+          <div class="empty">Loading...</div>
+        </div>
+      </div>
+
+      <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-header">
+          <div class="card-title">📢 Recent Announcements</div>
+          <button class="btn-ghost" onclick="switchPage('notice')">View all →</button>
+        </div>
+        <div class="card-body flush" id="dashRecentNotices">
+          <div class="empty">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:1.2rem;font-size:12px;color:var(--text2);letter-spacing:.5px;font-family:'Barlow',sans-serif;border-top:1px solid var(--border);margin-top:24px;">
+      © PH Finance Team Intranet · Built for daily BIR compliance.
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE: NOTICES ============ -->
+<div id="page-notice" class="page-content">
+  <div class="container">
+    <div class="page-heading">
+      <div>
+        <div class="page-title">📢 Announcements</div>
+        <div class="page-subtitle">Share team announcements and important documents.</div>
+      </div>
+      <button class="btn btn-primary" onclick="openNoticeForm()">+ New Announcement</button>
+    </div>
+
+    <div id="noticeList" style="display:flex;flex-direction:column;gap:12px;">
+      <div class="loading"><div class="spinner"></div>Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE: SCHEDULE ============ -->
+<div id="page-schedule" class="page-content">
+  <div class="sch-wrap">
+    <div class="sch-header">
+      <div class="sch-title">📅 Team Schedule</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <div class="sch-nav">
+          <button onclick="schPrevMonth()">‹</button>
+          <span class="sch-month-label" id="schMonthLabel"></span>
+          <button onclick="schNextMonth()">›</button>
+          <button onclick="schGoToday()" style="font-size:12px;padding:5px 10px;">Today</button>
+        </div>
+        <button class="btn btn-primary" onclick="openSchForm(null)">+ Add Event</button>
+      </div>
+    </div>
+
+    <div class="cal-grid" id="calGrid">
+      <div class="cal-dow">Sun</div><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div><div class="cal-dow">Wed</div><div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div>
+    </div>
+
+    <div class="sch-event-list">
+      <div class="sch-event-list-header">Events This Month <span id="schEventCount" style="font-weight:400;color:var(--text3);font-size:11px;margin-left:6px;text-transform:none;letter-spacing:0;"></span></div>
+      <div id="schEventList"><div class="empty">No events scheduled.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE: BIR CHECKLIST ============ -->
+<div id="page-bir" class="page-content">
+  <div class="container">
+    <div class="page-heading">
+      <div>
+        <div class="page-title">✅ Compliance Checklist</div>
+        <div class="page-subtitle" id="birSubtitle">Track BIR, PEZA, SEC, LGU & Payroll filings.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn" onclick="openBirAddForm()">+ Add Item</button>
+      </div>
+    </div>
+
+    <div class="bir-toolbar">
+      <label style="font-size:12px;color:var(--text2);font-weight:600;">Period:</label>
+      <select class="bir-period-select" id="birPeriodSelect" onchange="renderBirList()"></select>
+      <span id="birPeriodSummary" style="font-size:12px;color:var(--text3);"></span>
+    </div>
+
+    <div class="bir-tabs" id="birTabs">
+      <button class="bir-tab active" data-freq="ALL" onclick="setBirFreq('ALL')">All <span class="bir-tab-count" id="cntALL">0</span></button>
+      <button class="bir-tab" data-freq="MONTHLY" onclick="setBirFreq('MONTHLY')">Monthly <span class="bir-tab-count" id="cntMONTHLY">0</span></button>
+      <button class="bir-tab" data-freq="QUARTERLY" onclick="setBirFreq('QUARTERLY')">Quarterly <span class="bir-tab-count" id="cntQUARTERLY">0</span></button>
+      <button class="bir-tab" data-freq="ANNUAL" onclick="setBirFreq('ANNUAL')">Annual <span class="bir-tab-count" id="cntANNUAL">0</span></button>
+    </div>
+
+    <div class="bir-list" id="birList">
+      <div class="loading"><div class="spinner"></div>Loading...</div>
+    </div>
+
+    <div style="margin-top:18px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:12px;color:var(--text2);line-height:1.7;">
+      <div style="font-weight:600;color:var(--text);margin-bottom:4px;">💡 Note</div>
+      Deadlines within 3 days show as <span style="color:#92400e;font-weight:600;">🟡 Soon</span>; today or overdue show as <span style="color:#991b1b;font-weight:600;">🔴 Urgent / Overdue</span>.
+      Checking an item records the person's name and timestamp, and you can attach photos (BIR receipts, filing confirmations, eFPS screenshots) as proof. Everything syncs to the whole team in real time.
+      Default due dates follow general rules — please adjust based on your eFPS group, PEZA zone, holidays, and any changes under CREATE / EOPT.
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALS ============ -->
+
+<!-- Notice Modal -->
+<div class="overlay" id="noticeOverlay">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div class="modal-title" id="noticeModalTitle">New Announcement</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input type="text" id="noticeTitle" placeholder="Enter a title">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Content</label>
+      <textarea id="noticeBody" placeholder="Write your announcement..." rows="7"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Attachments <span style="font-weight:400;color:var(--text3);font-size:11px;text-transform:none;letter-spacing:0;">(images, PDF, docs — max 5MB each)</span></label>
+      <div id="noticeFileZone" onclick="document.getElementById('noticeFileInput').click()" style="border:2px dashed var(--border2);border-radius:var(--radius-sm);padding:14px;text-align:center;cursor:pointer;color:var(--text2);font-size:13px;transition:all 0.15s;">
+        📎 Click to attach files
+      </div>
+      <input type="file" id="noticeFileInput" multiple style="display:none" onchange="handleNoticeFiles(this)">
+      <div id="noticeFileList" style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeNoticeForm()">Cancel</button>
+      <button class="btn btn-primary btn-save" id="noticeSaveBtn" onclick="saveNotice()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Schedule Modal -->
+<div class="overlay" id="schOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="schModalTitle">Add Event</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Assignee / Target</label>
+      <input type="text" id="schMember" placeholder="e.g. Maria, Whole Team, Finance Dept...">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Start Date *</label>
+        <input type="date" id="schDateStart" oninput="schAutoEndDate()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Date</label>
+        <input type="date" id="schDateEnd">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select id="schCategory">
+        <option value="LEAVE">🏖️ Leave / Vacation</option>
+        <option value="SICK">🤒 Sick Leave</option>
+        <option value="OFFSITE">🚗 Offsite / Field Work</option>
+        <option value="TRAINING">📚 Training</option>
+        <option value="MEETING">👥 Meeting</option>
+        <option value="HOLIDAY">🎉 Holiday</option>
+        <option value="OTHER">📌 Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Title *</label>
+      <input type="text" id="schName" placeholder="e.g. Annual Leave, SGV Audit Visit...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input type="text" id="schDesc" placeholder="Location, remarks, etc.">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Color</label>
+      <div class="sch-color-row" id="schColorRow"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="schDeleteBtn" onclick="deleteSchEvent()" style="display:none;margin-right:auto;">Delete</button>
+      <button class="btn btn-cancel" onclick="closeSchForm()">Cancel</button>
+      <button class="btn btn-primary btn-save" onclick="saveSchEvent()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Checklist Item Add/Edit Modal -->
+<div class="overlay" id="birOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="birModalTitle">Add Checklist Item</div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Category *</label>
+        <select id="birCategory">
+          <option value="BIR">BIR</option>
+          <option value="PEZA">PEZA</option>
+          <option value="SEC">SEC</option>
+          <option value="LGU">LGU / Business Permit</option>
+          <option value="PAYROLL">Payroll</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Form Code / Name *</label>
+        <input type="text" id="birCode" placeholder="e.g. 1601-C, EZMPR, GIS...">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input type="text" id="birDesc" placeholder="e.g. Monthly Remittance Return of Income Taxes Withheld...">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Frequency *</label>
+        <select id="birFreq">
+          <option value="MONTHLY">Monthly</option>
+          <option value="QUARTERLY">Quarterly</option>
+          <option value="ANNUAL">Annual</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Due Day *</label>
+        <input type="number" id="birDueDay" min="1" max="90" placeholder="e.g. 10">
+      </div>
+    </div>
+    <div class="form-group" id="birDueMonthWrap" style="display:none;">
+      <label class="form-label">Annual Due Date (Month / Day) *</label>
+      <div class="form-row">
+        <input type="number" id="birDueMonth" min="1" max="12" placeholder="Month (1-12)">
+        <input type="number" id="birDueDayAnnual" min="1" max="31" placeholder="Day (1-31)">
+      </div>
+    </div>
+    <div class="form-group" style="background:var(--bg);padding:10px 12px;border-radius:6px;font-size:11.5px;color:var(--text2);line-height:1.55;">
+      <strong style="color:var(--text);">ℹ️ How due dates work</strong><br>
+      · <strong>Monthly:</strong> Due on day N of the following month (e.g. 10 → 10th of next month)<br>
+      · <strong>Quarterly:</strong> Due N days after quarter-end (e.g. 25 → Apr 25, Jul 25, Oct 25, Jan 25)<br>
+      · <strong>Annual:</strong> Due on fixed month/day each year (e.g. April 15)
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="birDeleteBtn" onclick="deleteBirForm()" style="display:none;margin-right:auto;">Delete</button>
+      <button class="btn btn-cancel" onclick="closeBirForm()">Cancel</button>
+      <button class="btn btn-primary btn-save" onclick="saveBirForm()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Photo Attachment Modal -->
+<div class="overlay" id="photoOverlay">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <div class="modal-title" id="photoModalTitle">Attach Photos</div>
+    </div>
+    <div id="photoModalSub" style="font-size:12px;color:var(--text2);margin-bottom:12px;"></div>
+    <div class="form-group">
+      <label class="form-label">Upload Proof <span style="font-weight:400;color:var(--text3);font-size:11px;text-transform:none;letter-spacing:0;">(receipts, eFPS confirmation, signed forms — up to 5 photos)</span></label>
+      <div id="photoDropZone" onclick="document.getElementById('photoFileInput').click()" style="border:2px dashed var(--border2);border-radius:var(--radius-sm);padding:22px 14px;text-align:center;cursor:pointer;color:var(--text2);font-size:13px;transition:all 0.15s;">
+        📸 Click to upload photos<br>
+        <span style="font-size:11px;color:var(--text3);">or take a photo with your camera</span>
+      </div>
+      <input type="file" id="photoFileInput" accept="image/*" multiple capture="environment" style="display:none" onchange="handleChecklistPhotos(this)">
+      <div id="photoProgress" style="display:none;margin-top:8px;font-size:12px;color:var(--text2);"></div>
+    </div>
+    <div id="photoGallery" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closePhotoModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:700;align-items:center;justify-content:center;cursor:pointer;padding:20px;" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="" style="max-width:95vw;max-height:95vh;border-radius:8px;">
+</div>
+
+<!-- Chat FAB + Panel -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()" aria-label="Team Chat">
+  💬
+  <span class="chat-fab-badge" id="chatFabBadge" style="display:none;">0</span>
+</button>
+<div class="chat-panel hidden" id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-header-title">💬 Team Chat</div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-wrap">
+    <input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendChat()" maxlength="500">
+    <button class="chat-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+</div><!-- /mainWrap -->
+
+<!-- ============ FIREBASE MODULE SCRIPT ============ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot,
+  collection, writeBatch, addDoc, query, orderBy, serverTimestamp, updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Firebase config (shared project, separate namespace prefix)
+const firebaseConfig = {
+  apiKey: "AIzaSyC-1oyIX1BvbryJJViHVoInxYaPyToI1kk",
+  authDomain: "leather-tracker.firebaseapp.com",
+  projectId: "leather-tracker",
+  storageBucket: "leather-tracker.firebasestorage.app",
+  messagingSenderId: "995121893874",
+  appId: "1:995121893874:web:99e4158d1dcafaa4c31b6b"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Namespace to fully isolate PH Finance data from KSM Sports data
+const NS = 'phfin';
+
+// Expose for non-module script below
+window.FB = {
+  db, doc, getDoc, setDoc, deleteDoc, onSnapshot,
+  collection, writeBatch, addDoc, query, orderBy, serverTimestamp, updateDoc, NS
+};
+
+window.__fbReady = true;
+if (typeof window.onFbReady === 'function') window.onFbReady();
+</script>
+
+<!-- ============ APP LOGIC ============ -->
+<script>
+/* =======================================================
+   AUTH / SESSION
+======================================================= */
+const PW = 'phfinance';
+const ADMIN_PW = 'ksm5213';
+const SK = 'phfin_auth', SN = 'phfin_name', SR = 'phfin_role';
+
+function checkPw(){
+  const name = document.getElementById('pwName').value.trim();
+  const pw = document.getElementById('pwInput').value;
+  if(!name){
+    document.getElementById('pwError').textContent = 'Please enter your name.';
+    document.getElementById('pwName').focus();
+    return;
+  }
+  let role = null;
+  if(pw === ADMIN_PW) role = 'admin';
+  else if(pw === PW) role = 'member';
+  if(!role){
+    document.getElementById('pwError').textContent = 'Incorrect password.';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+    return;
+  }
+  sessionStorage.setItem(SK, '1');
+  sessionStorage.setItem(SN, name);
+  sessionStorage.setItem(SR, role);
+  document.getElementById('pwScreen').style.display = 'none';
+  document.getElementById('mainWrap').style.display = '';
+  window.__me = { name, role };
+  bootApp();
+}
+
+(function autoLogin(){
+  if(sessionStorage.getItem(SK) === '1'){
+    document.getElementById('pwScreen').style.display = 'none';
+    document.getElementById('mainWrap').style.display = '';
+    window.__me = {
+      name: sessionStorage.getItem(SN) || 'Member',
+      role: sessionStorage.getItem(SR) || 'member'
+    };
+    (function waitFb(){
+      if(window.__fbReady) bootApp();
+      else setTimeout(waitFb, 50);
+    })();
+  }
+})();
+
+function bootApp(){
+  if(!window.__fbReady){
+    window.onFbReady = bootApp;
+    return;
+  }
+  initPresence();
+  initNotices();
+  initSchedule();
+  initBir();
+  initChat();
+  initDashboard();
+}
+
+/* =======================================================
+   UTILITIES
+======================================================= */
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function fmtDate(d){
+  if(!d) return '';
+  if(typeof d === 'string') d = new Date(d);
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${dd}`;
+}
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTH_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DOW_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function fmtDateShort(d){
+  if(!d) return '';
+  if(typeof d === 'string') d = new Date(d);
+  return `${MONTH_SHORT[d.getMonth()]} ${d.getDate()}`;
+}
+function fmtTime(ts){
+  if(!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const now = new Date();
+  const diffDay = Math.floor((now - d) / 86400000);
+  if(diffDay === 0){
+    return d.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+  }
+  if(diffDay === 1) return 'Yesterday';
+  if(diffDay < 7) return `${diffDay} days ago`;
+  return `${MONTH_SHORT[d.getMonth()]} ${d.getDate()}`;
+}
+function todayISO(){ return fmtDate(new Date()); }
+function daysBetween(a, b){
+  const d1 = new Date(fmtDate(a)), d2 = new Date(fmtDate(b));
+  return Math.round((d2 - d1) / 86400000);
+}
+function toast(title, body, type){
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type || '');
+  el.innerHTML = `<div class="toast-title">${escapeHtml(title)}</div><div class="toast-body">${escapeHtml(body || '')}</div>`;
+  wrap.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; }, 4000);
+  setTimeout(() => el.remove(), 4400);
+}
+
+/* =======================================================
+   PAGE SWITCH
+======================================================= */
+function switchPage(id){
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.toggle('active', t.dataset.page === id));
+  document.querySelectorAll('.page-content').forEach(c => c.classList.toggle('active', c.id === 'page-' + id));
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+window.switchPage = switchPage;
+
+/* =======================================================
+   PRESENCE
+======================================================= */
+function initPresence(){
+  const { db, doc, setDoc, deleteDoc, onSnapshot, collection, NS, serverTimestamp } = window.FB;
+  const me = window.__me;
+  const sessionId = Math.random().toString(36).slice(2, 10) + '_' + Date.now();
+  const ref = doc(db, NS + '_presence', sessionId);
+
+  async function beat(){
+    try {
+      await setDoc(ref, { name: me.name, role: me.role, ts: serverTimestamp() });
+    } catch(e){ console.warn('presence beat failed', e); }
+  }
+  beat();
+  const hb = setInterval(beat, 20000);
+  window.addEventListener('beforeunload', () => {
+    clearInterval(hb);
+    deleteDoc(ref).catch(()=>{});
+  });
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible') beat();
+  });
+
+  onSnapshot(collection(db, NS + '_presence'), snap => {
+    const nowMs = Date.now();
+    const users = [];
+    snap.forEach(d => {
+      const v = d.data();
+      const t = v.ts && v.ts.toDate ? v.ts.toDate().getTime() : 0;
+      if(nowMs - t < 60000) users.push(v);
+    });
+    const bar = document.getElementById('presenceBar');
+    const label = users.length === 1 ? '1 online' : `${users.length} online`;
+    bar.innerHTML = '<div class="live-dot"></div><span class="live-txt">' + label + '</span>';
+    const seen = new Set();
+    users.forEach(u => {
+      if(seen.has(u.name)) return;
+      seen.add(u.name);
+      if(seen.size > 6) return;
+      const chip = document.createElement('div');
+      chip.className = 'presence-chip' + (u.role === 'admin' ? ' presence-chip-admin' : '');
+      chip.innerHTML = `<div class="presence-chip-dot"></div><span class="presence-chip-name">${escapeHtml(u.name)}</span>` +
+        (u.role === 'admin' ? '<span class="presence-chip-role">Admin</span>' : '');
+      bar.appendChild(chip);
+    });
+  });
+}
+
+/* =======================================================
+   NOTICES
+======================================================= */
+let _notices = [];
+let _editingNoticeId = null;
+let _noticeFiles = [];
+
+function initNotices(){
+  const { db, onSnapshot, collection, query, orderBy, NS } = window.FB;
+  const q = query(collection(db, NS + '_notices'), orderBy('createdAt', 'desc'));
+  onSnapshot(q, snap => {
+    _notices = [];
+    snap.forEach(d => _notices.push({ id: d.id, ...d.data() }));
+    renderNotices();
+    renderDashboardNotices();
+  }, err => {
+    console.error('notices load err', err);
+    document.getElementById('noticeList').innerHTML = '<div class="empty">Failed to load announcements.</div>';
+  });
+}
+
+function renderNotices(){
+  const el = document.getElementById('noticeList');
+  if(!_notices.length){
+    el.innerHTML = '<div class="empty">No announcements yet. Create the first one!</div>';
+    return;
+  }
+  el.innerHTML = _notices.map(n => {
+    const canEdit = window.__me.role === 'admin' || n.authorName === window.__me.name;
+    const files = (n.files || []).map(f =>
+      `<a class="notice-file" href="${f.data}" download="${escapeHtml(f.name)}" target="_blank">📎 ${escapeHtml(f.name)}</a>`
+    ).join('');
+    return `
+      <div class="notice-item">
+        <div class="notice-head">
+          <div style="flex:1;min-width:0;">
+            <div class="notice-title">${escapeHtml(n.title)}</div>
+            <div class="notice-meta">
+              <span class="notice-meta-author">${escapeHtml(n.authorName || '—')}</span>
+              <span>·</span>
+              <span>${fmtTime(n.createdAt)}</span>
+              ${n.authorRole === 'admin' ? '<span style="background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600;">Admin</span>' : ''}
+            </div>
+          </div>
+          ${canEdit ? `
+            <div class="notice-actions">
+              <button class="btn btn-sm" onclick="openNoticeForm('${n.id}')">Edit</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteNotice('${n.id}')">Delete</button>
+            </div>` : ''}
+        </div>
+        <div class="notice-body">${escapeHtml(n.body || '')}</div>
+        ${files ? `<div class="notice-files">${files}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function openNoticeForm(id){
+  _editingNoticeId = id || null;
+  _noticeFiles = [];
+  if(id){
+    const n = _notices.find(x => x.id === id);
+    if(!n) return;
+    document.getElementById('noticeModalTitle').textContent = 'Edit Announcement';
+    document.getElementById('noticeTitle').value = n.title || '';
+    document.getElementById('noticeBody').value = n.body || '';
+    _noticeFiles = (n.files || []).map(f => ({ ...f, existing: true }));
+  } else {
+    document.getElementById('noticeModalTitle').textContent = 'New Announcement';
+    document.getElementById('noticeTitle').value = '';
+    document.getElementById('noticeBody').value = '';
+  }
+  renderNoticeFileList();
+  document.getElementById('noticeOverlay').classList.add('open');
+}
+window.openNoticeForm = openNoticeForm;
+
+function closeNoticeForm(){
+  document.getElementById('noticeOverlay').classList.remove('open');
+}
+window.closeNoticeForm = closeNoticeForm;
+
+function handleNoticeFiles(input){
+  const files = Array.from(input.files || []);
+  files.forEach(f => {
+    if(f.size > 5 * 1024 * 1024){
+      toast('File too large', `${f.name} (max 5MB)`, 'warn');
+      return;
+    }
+    const r = new FileReader();
+    r.onload = e => {
+      _noticeFiles.push({ name: f.name, type: f.type, data: e.target.result });
+      renderNoticeFileList();
+    };
+    r.readAsDataURL(f);
+  });
+  input.value = '';
+}
+window.handleNoticeFiles = handleNoticeFiles;
+
+function renderNoticeFileList(){
+  const el = document.getElementById('noticeFileList');
+  if(!_noticeFiles.length){ el.innerHTML = ''; return; }
+  el.innerHTML = _noticeFiles.map((f, i) =>
+    `<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--bg);border-radius:4px;font-size:12px;">
+       <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">📎 ${escapeHtml(f.name)}</span>
+       <button class="btn-ghost" style="color:#cc0000;" onclick="removeNoticeFile(${i})">✕</button>
+     </div>`).join('');
+}
+
+function removeNoticeFile(i){
+  _noticeFiles.splice(i, 1);
+  renderNoticeFileList();
+}
+window.removeNoticeFile = removeNoticeFile;
+
+async function saveNotice(){
+  const title = document.getElementById('noticeTitle').value.trim();
+  const body = document.getElementById('noticeBody').value.trim();
+  if(!title){ toast('Please enter a title', '', 'warn'); return; }
+  const btn = document.getElementById('noticeSaveBtn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  const { db, doc, setDoc, addDoc, collection, NS, serverTimestamp } = window.FB;
+  try {
+    const payload = {
+      title, body,
+      files: _noticeFiles.map(f => ({ name: f.name, type: f.type, data: f.data })),
+      authorName: window.__me.name,
+      authorRole: window.__me.role,
+      updatedAt: serverTimestamp()
+    };
+    if(_editingNoticeId){
+      await setDoc(doc(db, NS + '_notices', _editingNoticeId), payload, { merge: true });
+    } else {
+      payload.createdAt = serverTimestamp();
+      await addDoc(collection(db, NS + '_notices'), payload);
+    }
+    closeNoticeForm();
+    toast('Announcement saved', '', 'ok');
+  } catch(e){
+    console.error(e);
+    toast('Save failed', e.message || '', 'danger');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save';
+  }
+}
+window.saveNotice = saveNotice;
+
+async function deleteNotice(id){
+  if(!confirm('Delete this announcement?')) return;
+  const { db, doc, deleteDoc, NS } = window.FB;
+  try {
+    await deleteDoc(doc(db, NS + '_notices', id));
+    toast('Announcement deleted', '', 'ok');
+  } catch(e){
+    toast('Delete failed', e.message || '', 'danger');
+  }
+}
+window.deleteNotice = deleteNotice;
+
+/* =======================================================
+   SCHEDULE (Team Calendar)
+======================================================= */
+const SCH_COLORS = ['#1c3a5e','#0ea5e9','#16a34a','#ea580c','#dc2626','#9333ea','#db2777','#ca8a04','#475569'];
+const CAT_COLORS = {
+  LEAVE:'#16a34a', SICK:'#dc2626', OFFSITE:'#0ea5e9',
+  TRAINING:'#9333ea', MEETING:'#1c3a5e', HOLIDAY:'#ea580c', OTHER:'#475569'
+};
+const CAT_LABELS = {
+  LEAVE:'🏖️ Leave', SICK:'🤒 Sick Leave', OFFSITE:'🚗 Offsite',
+  TRAINING:'📚 Training', MEETING:'👥 Meeting', HOLIDAY:'🎉 Holiday', OTHER:'📌 Other'
+};
+
+let _schEvents = [];
+let _schViewDate = new Date();
+let _editingSchId = null;
+let _selectedSchColor = CAT_COLORS.LEAVE;
+
+function initSchedule(){
+  const { db, onSnapshot, collection, query, orderBy, NS } = window.FB;
+  const q = query(collection(db, NS + '_schedule'), orderBy('start', 'asc'));
+  onSnapshot(q, snap => {
+    _schEvents = [];
+    snap.forEach(d => _schEvents.push({ id: d.id, ...d.data() }));
+    renderCalendar();
+    renderDashboardTeamToday();
+  });
+  renderCalendar();
+  buildSchColorRow();
+}
+
+function buildSchColorRow(){
+  const row = document.getElementById('schColorRow');
+  row.innerHTML = SCH_COLORS.map(c =>
+    `<div class="sch-color-swatch ${c===_selectedSchColor?'selected':''}" style="background:${c}" onclick="selectSchColor('${c}')"></div>`
+  ).join('');
+}
+
+function selectSchColor(c){
+  _selectedSchColor = c;
+  buildSchColorRow();
+}
+window.selectSchColor = selectSchColor;
+
+function schPrevMonth(){ _schViewDate.setMonth(_schViewDate.getMonth()-1); renderCalendar(); }
+function schNextMonth(){ _schViewDate.setMonth(_schViewDate.getMonth()+1); renderCalendar(); }
+function schGoToday(){ _schViewDate = new Date(); renderCalendar(); }
+window.schPrevMonth = schPrevMonth;
+window.schNextMonth = schNextMonth;
+window.schGoToday = schGoToday;
+
+function renderCalendar(){
+  const y = _schViewDate.getFullYear(), m = _schViewDate.getMonth();
+  document.getElementById('schMonthLabel').textContent = `${MONTH_LONG[m]} ${y}`;
+  const grid = document.getElementById('calGrid');
+  const headers = Array.from(grid.querySelectorAll('.cal-dow'));
+  grid.innerHTML = '';
+  headers.forEach(h => grid.appendChild(h));
+
+  const firstDay = new Date(y, m, 1);
+  const startDow = firstDay.getDay();
+  const lastDate = new Date(y, m+1, 0).getDate();
+
+  const prevLast = new Date(y, m, 0).getDate();
+  for(let i = startDow - 1; i >= 0; i--){
+    addCell(new Date(y, m-1, prevLast - i), true);
+  }
+  for(let d = 1; d <= lastDate; d++){
+    addCell(new Date(y, m, d), false);
+  }
+  const filled = startDow + lastDate;
+  const need = Math.ceil(filled / 7) * 7;
+  for(let d = 1; filled + d - 1 < need; d++){
+    addCell(new Date(y, m+1, d), true);
+  }
+
+  const monthEvents = _schEvents.filter(e => {
+    const s = new Date(e.start), f = new Date(e.end || e.start);
+    return (s.getFullYear()===y && s.getMonth()===m) || (f.getFullYear()===y && f.getMonth()===m) ||
+           (s < new Date(y, m+1, 1) && f >= new Date(y, m, 1));
+  });
+  const listEl = document.getElementById('schEventList');
+  document.getElementById('schEventCount').textContent = monthEvents.length ? `(${monthEvents.length} ${monthEvents.length===1?'event':'events'})` : '';
+  if(!monthEvents.length){
+    listEl.innerHTML = '<div class="empty">No events this month.</div>';
+  } else {
+    listEl.innerHTML = monthEvents.map(e => {
+      const cat = CAT_LABELS[e.category] || '';
+      const dateStr = e.start === e.end || !e.end ? fmtDateShort(e.start) : `${fmtDateShort(e.start)} – ${fmtDateShort(e.end)}`;
+      const canEdit = window.__me.role === 'admin' || e.authorName === window.__me.name;
+      return `<div class="sch-event-item" ${canEdit?`onclick="openSchForm('${e.id}')" style="cursor:pointer;"`:''}>
+        <div class="sch-event-dot" style="background:${e.color || CAT_COLORS[e.category] || '#1c3a5e'}"></div>
+        <div class="sch-event-info">
+          <div class="sch-event-title">${escapeHtml(e.title)} ${e.member?`<span style="color:var(--text2);font-weight:400;">· ${escapeHtml(e.member)}</span>`:''}</div>
+          <div class="sch-event-date">${dateStr} ${cat ? '· ' + cat : ''}</div>
+          ${e.desc ? `<div class="sch-event-desc">${escapeHtml(e.desc)}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function addCell(d, other){
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell' + (other ? ' other-month' : '');
+    const todayStr = fmtDate(new Date());
+    const dStr = fmtDate(d);
+    if(dStr === todayStr) cell.classList.add('today');
+    cell.innerHTML = `<div class="cal-date">${d.getDate()}</div>`;
+    cell.onclick = () => {
+      if(!other){
+        openSchForm(null, dStr);
+      }
+    };
+    const dayEvents = _schEvents.filter(e => {
+      const s = new Date(e.start), f = new Date(e.end || e.start);
+      return d >= new Date(s.getFullYear(),s.getMonth(),s.getDate()) && d <= new Date(f.getFullYear(),f.getMonth(),f.getDate());
+    });
+    dayEvents.slice(0, 3).forEach(e => {
+      const chip = document.createElement('div');
+      chip.className = 'cal-event';
+      chip.style.background = e.color || CAT_COLORS[e.category] || '#1c3a5e';
+      chip.textContent = (e.member ? e.member + ' · ' : '') + e.title;
+      chip.onclick = (ev) => {
+        ev.stopPropagation();
+        openSchForm(e.id);
+      };
+      cell.appendChild(chip);
+    });
+    if(dayEvents.length > 3){
+      const more = document.createElement('div');
+      more.style.cssText = 'font-size:9.5px;color:var(--text3);padding:0 4px;';
+      more.textContent = `+${dayEvents.length - 3} more`;
+      cell.appendChild(more);
+    }
+    if(window.__birDeadlineSet && window.__birDeadlineSet.has(dStr)){
+      const dot = document.createElement('div');
+      dot.className = 'cal-deadline-dot';
+      dot.title = 'BIR Deadline';
+      cell.appendChild(dot);
+    }
+    grid.appendChild(cell);
+  }
+}
+
+function openSchForm(id, prefillDate){
+  _editingSchId = id || null;
+  const delBtn = document.getElementById('schDeleteBtn');
+  if(id){
+    const e = _schEvents.find(x => x.id === id);
+    if(!e) return;
+    document.getElementById('schModalTitle').textContent = 'Edit Event';
+    document.getElementById('schMember').value = e.member || '';
+    document.getElementById('schDateStart').value = e.start || '';
+    document.getElementById('schDateEnd').value = e.end || '';
+    document.getElementById('schName').value = e.title || '';
+    document.getElementById('schDesc').value = e.desc || '';
+    document.getElementById('schCategory').value = e.category || 'LEAVE';
+    _selectedSchColor = e.color || CAT_COLORS[e.category] || CAT_COLORS.LEAVE;
+    const canEdit = window.__me.role === 'admin' || e.authorName === window.__me.name;
+    delBtn.style.display = canEdit ? '' : 'none';
+  } else {
+    document.getElementById('schModalTitle').textContent = 'Add Event';
+    document.getElementById('schMember').value = window.__me.name;
+    document.getElementById('schDateStart').value = prefillDate || todayISO();
+    document.getElementById('schDateEnd').value = '';
+    document.getElementById('schName').value = '';
+    document.getElementById('schDesc').value = '';
+    document.getElementById('schCategory').value = 'LEAVE';
+    _selectedSchColor = CAT_COLORS.LEAVE;
+    delBtn.style.display = 'none';
+  }
+  buildSchColorRow();
+  document.getElementById('schOverlay').classList.add('open');
+}
+window.openSchForm = openSchForm;
+
+function closeSchForm(){
+  document.getElementById('schOverlay').classList.remove('open');
+}
+window.closeSchForm = closeSchForm;
+
+function schAutoEndDate(){
+  const start = document.getElementById('schDateStart').value;
+  const end = document.getElementById('schDateEnd').value;
+  if(start && !end) document.getElementById('schDateEnd').value = start;
+}
+window.schAutoEndDate = schAutoEndDate;
+
+document.addEventListener('change', e => {
+  if(e.target && e.target.id === 'schCategory'){
+    _selectedSchColor = CAT_COLORS[e.target.value] || CAT_COLORS.OTHER;
+    buildSchColorRow();
+  }
+});
+
+async function saveSchEvent(){
+  const member = document.getElementById('schMember').value.trim();
+  const start = document.getElementById('schDateStart').value;
+  const end = document.getElementById('schDateEnd').value || start;
+  const title = document.getElementById('schName').value.trim();
+  const desc = document.getElementById('schDesc').value.trim();
+  const category = document.getElementById('schCategory').value;
+  if(!start){ toast('Please select a start date', '', 'warn'); return; }
+  if(!title){ toast('Please enter a title', '', 'warn'); return; }
+  if(new Date(end) < new Date(start)){ toast('End date is before start date', '', 'warn'); return; }
+
+  const { db, doc, setDoc, addDoc, collection, NS, serverTimestamp } = window.FB;
+  const payload = {
+    member, start, end, title, desc, category, color: _selectedSchColor,
+    authorName: window.__me.name, authorRole: window.__me.role,
+    updatedAt: serverTimestamp()
+  };
+  try {
+    if(_editingSchId){
+      await setDoc(doc(db, NS + '_schedule', _editingSchId), payload, { merge: true });
+    } else {
+      payload.createdAt = serverTimestamp();
+      await addDoc(collection(db, NS + '_schedule'), payload);
+    }
+    closeSchForm();
+    toast('Event saved', '', 'ok');
+  } catch(e){
+    toast('Save failed', e.message || '', 'danger');
+  }
+}
+window.saveSchEvent = saveSchEvent;
+
+async function deleteSchEvent(){
+  if(!_editingSchId) return;
+  if(!confirm('Delete this event?')) return;
+  const { db, doc, deleteDoc, NS } = window.FB;
+  try {
+    await deleteDoc(doc(db, NS + '_schedule', _editingSchId));
+    closeSchForm();
+    toast('Event deleted', '', 'ok');
+  } catch(e){
+    toast('Delete failed', e.message || '', 'danger');
+  }
+}
+window.deleteSchEvent = deleteSchEvent;
+
+/* =======================================================
+   BIR CHECKLIST
+======================================================= */
+const CAT_PILL_LABELS = {
+  BIR: 'BIR', PEZA: 'PEZA', SEC: 'SEC', LGU: 'LGU', PAYROLL: 'Payroll'
+};
+
+// Compress image client-side before upload (Firestore 1MB per-doc limit)
+function compressImage(file, maxWidth = 1400, quality = 0.82){
+  return new Promise((resolve, reject) => {
+    if(!file.type.startsWith('image/')){ reject(new Error('Not an image')); return; }
+    const r = new FileReader();
+    r.onerror = () => reject(new Error('Read failed'));
+    r.onload = e => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Image load failed'));
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if(w > maxWidth){ h = Math.round(h * maxWidth / w); w = maxWidth; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+function openLightbox(src){
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').style.display = 'flex';
+}
+function closeLightbox(){
+  document.getElementById('lightbox').style.display = 'none';
+  document.getElementById('lightboxImg').src = '';
+}
+window.openLightbox = openLightbox;
+window.closeLightbox = closeLightbox;
+
+
+const DEFAULT_BIR_FORMS = [
+  // ========== MONTHLY ==========
+  // --- BIR ---
+  { cat: 'BIR',  code: '0619-E',  desc: 'Monthly Remittance of Expanded Withholding Tax',        freq: 'MONTHLY', dueDay: 10 },
+  { cat: 'BIR',  code: '0619-F',  desc: 'Monthly Remittance of Final Withholding Tax',            freq: 'MONTHLY', dueDay: 10 },
+  { cat: 'BIR',  code: '1601-C',  desc: 'Monthly Remittance of Compensation Tax Withheld',        freq: 'MONTHLY', dueDay: 10 },
+  // --- PEZA ---
+  { cat: 'PEZA', code: 'EZMPR',   desc: 'Ecozone Monthly Performance Report (online submission)', freq: 'MONTHLY', dueDay: 20 },
+
+  // ========== QUARTERLY ==========
+  // --- BIR ---
+  { cat: 'BIR',  code: '1601-EQ', desc: 'Quarterly Remittance of Creditable EWT',                  freq: 'QUARTERLY', dueDay: 30 },
+  { cat: 'BIR',  code: '1601-FQ', desc: 'Quarterly Remittance of Final Withholding Tax',           freq: 'QUARTERLY', dueDay: 30 },
+  { cat: 'BIR',  code: 'QAP',     desc: 'Quarterly Alphalist of Payees (with 1601-EQ)',            freq: 'QUARTERLY', dueDay: 30 },
+  { cat: 'BIR',  code: '2307',    desc: 'Certificate of Creditable Tax Withheld (issue to payees)',freq: 'QUARTERLY', dueDay: 20 },
+  { cat: 'BIR',  code: '2550Q',   desc: 'Quarterly VAT Return',                                    freq: 'QUARTERLY', dueDay: 25 },
+  { cat: 'BIR',  code: 'SLSP',    desc: 'Summary List of Sales & Purchases (with 2550Q)',          freq: 'QUARTERLY', dueDay: 25 },
+  { cat: 'BIR',  code: '1702Q',   desc: 'Quarterly Corporate Income Tax Return',                   freq: 'QUARTERLY', dueDay: 60 },
+  { cat: 'BIR',  code: 'SAWT',    desc: 'Summary Alphalist of Withholding Taxes (with 1702Q)',     freq: 'QUARTERLY', dueDay: 60 },
+  // --- PEZA ---
+  { cat: 'PEZA', code: 'QITR-PEZA',desc: 'Quarterly ITR Copy + O.R. submitted to PEZA',            freq: 'QUARTERLY', dueDay: 75 },
+
+  // ========== ANNUAL ==========
+  // --- BIR ---
+  { cat: 'BIR',  code: '1604-C',  desc: 'Annual Info Return of Income Taxes Withheld – Compensation', freq: 'ANNUAL', dueMonth: 1, dueDay: 31 },
+  { cat: 'BIR',  code: '2316',    desc: 'Certificate of Compensation Payment / Tax Withheld (issue to employees)', freq: 'ANNUAL', dueMonth: 1, dueDay: 31 },
+  { cat: 'BIR',  code: '1604-F',  desc: 'Annual Info Return of Final Withholding Tax',             freq: 'ANNUAL', dueMonth: 1, dueDay: 31 },
+  { cat: 'BIR',  code: 'Inventory',desc: 'Annual Inventory List (submit to BIR)',                  freq: 'ANNUAL', dueMonth: 1, dueDay: 30 },
+  { cat: 'BIR',  code: '1604-E',  desc: 'Annual Info Return of Creditable EWT',                    freq: 'ANNUAL', dueMonth: 3, dueDay: 1 },
+  { cat: 'BIR',  code: '1702 / 1702-EX / 1702-MX', desc: 'Annual Corporate Income Tax Return (attach CETI for RBEs)', freq: 'ANNUAL', dueMonth: 4, dueDay: 15 },
+  // --- PEZA ---
+  { cat: 'PEZA', code: 'CETI',    desc: 'Certificate of Entitlement to Tax Incentives (file via FIRMS before ITR)', freq: 'ANNUAL', dueMonth: 1, dueDay: 15 },
+  { cat: 'PEZA', code: 'AFS-PEZA',desc: 'Audited Financial Statements (BIR-stamped copy to PEZA)',  freq: 'ANNUAL', dueMonth: 5, dueDay: 15 },
+  { cat: 'PEZA', code: 'AROO',    desc: 'Annual Report on Actual Operations',                       freq: 'ANNUAL', dueMonth: 4, dueDay: 15 },
+  { cat: 'PEZA', code: 'ATIR/ABR',desc: 'Annual Tax Incentives Report / Annual Benefits Report (via FIRMS)', freq: 'ANNUAL', dueMonth: 7, dueDay: 15 },
+  // --- SEC ---
+  { cat: 'SEC',  code: 'GIS',     desc: 'General Information Sheet (30 days after annual stockholders meeting)', freq: 'ANNUAL', dueMonth: 4, dueDay: 30 },
+  { cat: 'SEC',  code: 'AFS-SEC', desc: 'Audited Financial Statements to SEC (based on SEC reg. no. last digit)', freq: 'ANNUAL', dueMonth: 6, dueDay: 30 },
+  // --- LGU ---
+  { cat: 'LGU',  code: 'Business Permit', desc: 'Mayor\'s / Business Permit Renewal',               freq: 'ANNUAL', dueMonth: 1, dueDay: 20 },
+  { cat: 'LGU',  code: 'Barangay Clearance', desc: 'Barangay Business Clearance Renewal',           freq: 'ANNUAL', dueMonth: 1, dueDay: 20 },
+];
+
+let _birForms = [];
+let _birCompletions = {};
+let _birAttachments = {}; // key: formId__pk -> { photos: [{name, data, addedBy, addedAt}] }
+let _birFreqFilter = 'ALL';
+let _birCurrentPeriod = null;
+let _editingBirId = null;
+
+function initBir(){
+  const { db, onSnapshot, collection, NS } = window.FB;
+
+  (async () => {
+    const { getDoc, doc, setDoc, writeBatch, deleteDoc, collection, onSnapshot } = window.FB;
+    const seedRef = doc(db, NS + '_meta', 'checklistSeededV4');
+    const seedDoc = await getDoc(seedRef);
+    if(!seedDoc.exists()){
+      // Clean up removed categories' seed items (SSS/PHIC/HDMF from V2, DOLE/DENR from V3)
+      const removedSeedIds = [
+        // V2 → V3 removals (SSS / PhilHealth / Pag-IBIG)
+        'seed_SSS_MONTHLY_SSSR5',
+        'seed_SSS_MONTHLY_SSSR3',
+        'seed_SSS_MONTHLY_SSSML1',
+        'seed_PHIC_MONTHLY_PHICRF1',
+        'seed_HDMF_MONTHLY_MCRF',
+        'seed_HDMF_MONTHLY_STLRF',
+        // V3 → V4 removals (DOLE / DENR)
+        'seed_DOLE_ANNUAL_AMR',
+        'seed_DOLE_ANNUAL_AWAIR',
+        'seed_DENR_QUARTERLY_SMR',
+        'seed_DENR_ANNUAL_CMR'
+      ];
+      for(const id of removedSeedIds){
+        try { await deleteDoc(doc(db, NS + '_bir_forms', id)); } catch(e){}
+      }
+
+      const batch = writeBatch(db);
+      DEFAULT_BIR_FORMS.forEach((f, idx) => {
+        const safeCode = f.code.replace(/[^A-Za-z0-9]/g,'');
+        const seedId = `seed_${f.cat}_${f.freq}_${safeCode}`;
+        const dref = doc(db, NS + '_bir_forms', seedId);
+        batch.set(dref, { ...f, order: idx, createdAt: new Date() }, { merge: true });
+      });
+      batch.set(seedRef, { at: new Date() });
+      try { await batch.commit(); } catch(e){ console.warn('seed failed', e); }
+    }
+  })();
+
+  onSnapshot(collection(db, NS + '_bir_forms'), snap => {
+    _birForms = [];
+    snap.forEach(d => _birForms.push({ id: d.id, ...d.data() }));
+    const freqOrder = { MONTHLY: 0, QUARTERLY: 1, ANNUAL: 2 };
+    const catOrder = { BIR:0, PEZA:1, SEC:2, LGU:3, PAYROLL:4 };
+    _birForms.sort((a,b) => {
+      return (freqOrder[a.freq]-freqOrder[b.freq])
+        || ((catOrder[a.cat||'BIR']||99) - (catOrder[b.cat||'BIR']||99))
+        || (a.order||0) - (b.order||0)
+        || a.code.localeCompare(b.code);
+    });
+    renderBirList();
+    renderDashboardBir();
+  });
+
+  onSnapshot(collection(db, NS + '_bir_completions'), snap => {
+    _birCompletions = {};
+    snap.forEach(d => _birCompletions[d.id] = d.data());
+    renderBirList();
+    renderDashboardBir();
+    if(_photoCtx) renderPhotoGallery();
+  });
+
+  onSnapshot(collection(db, NS + '_bir_attachments'), snap => {
+    _birAttachments = {};
+    snap.forEach(d => _birAttachments[d.id] = d.data());
+    renderBirList();
+    if(_photoCtx) renderPhotoGallery();
+  });
+
+  buildBirPeriodSelect();
+  const now = new Date();
+  _birCurrentPeriod = { year: now.getFullYear(), month: now.getMonth()+1, q: Math.floor(now.getMonth()/3)+1 };
+  setTimeout(() => renderBirList(), 100);
+}
+
+function buildBirPeriodSelect(){
+  const sel = document.getElementById('birPeriodSelect');
+  const now = new Date();
+  const opts = [];
+  // Fixed range: March 2026 → December 2027
+  const startY = 2026, startM = 3;  // March 2026 (1-indexed month)
+  const endY = 2027,   endM = 12;   // December 2027
+  for(let y = startY; y <= endY; y++){
+    const mStart = (y === startY) ? startM : 1;
+    const mEnd   = (y === endY)   ? endM   : 12;
+    for(let m = mStart; m <= mEnd; m++){
+      const d = new Date(y, m - 1, 1);
+      opts.push({
+        val: JSON.stringify({ year: y, month: m, q: Math.floor((m-1)/3)+1 }),
+        label: `${MONTH_LONG[m-1]} ${y} (Q${Math.floor((m-1)/3)+1})`
+      });
+    }
+  }
+  sel.innerHTML = opts.map(o => `<option value='${o.val}'>${o.label}</option>`).join('');
+
+  // Default selection: current month if in range, otherwise start of range
+  const curY = now.getFullYear(), curM = now.getMonth() + 1;
+  let defY = curY, defM = curM;
+  const afterStart = (curY > startY) || (curY === startY && curM >= startM);
+  const beforeEnd  = (curY < endY)   || (curY === endY   && curM <= endM);
+  if(!(afterStart && beforeEnd)){ defY = startY; defM = startM; }
+  const defVal = JSON.stringify({ year: defY, month: defM, q: Math.floor((defM-1)/3)+1 });
+  sel.value = defVal;
+  sel.onchange = () => {
+    try { _birCurrentPeriod = JSON.parse(sel.value); renderBirList(); } catch(e){}
+  };
+}
+
+function setBirFreq(f){
+  _birFreqFilter = f;
+  document.querySelectorAll('.bir-tab').forEach(t => t.classList.toggle('active', t.dataset.freq === f));
+  renderBirList();
+}
+window.setBirFreq = setBirFreq;
+
+function computeDueDate(form, period){
+  if(form.freq === 'MONTHLY'){
+    const y = period.year, m = period.month;
+    let dy = y, dmm = m + 1;
+    if(dmm > 12){ dmm = 1; dy = y + 1; }
+    const clamp = Math.min(form.dueDay || 10, new Date(dy, dmm, 0).getDate());
+    return new Date(dy, dmm - 1, clamp);
+  }
+  if(form.freq === 'QUARTERLY'){
+    const q = period.q;
+    let y = period.year, qEndMonth = q * 3;
+    if((form.dueDay || 0) > 31){
+      const qEndDate = new Date(y, qEndMonth, 0);
+      const dueD = new Date(qEndDate);
+      dueD.setDate(dueD.getDate() + (form.dueDay || 60));
+      return dueD;
+    }
+    let dmm = qEndMonth + 1, dy = y;
+    if(dmm > 12){ dmm = dmm - 12; dy = y + 1; }
+    const clamp = Math.min(form.dueDay || 30, new Date(dy, dmm, 0).getDate());
+    return new Date(dy, dmm - 1, clamp);
+  }
+  if(form.freq === 'ANNUAL'){
+    const y = period.year;
+    const mm = form.dueMonth || 1;
+    const clamp = Math.min(form.dueDay || 1, new Date(y, mm, 0).getDate());
+    return new Date(y, mm - 1, clamp);
+  }
+  return new Date();
+}
+
+function periodKey(form, period){
+  if(form.freq === 'MONTHLY') return `M-${period.year}-${String(period.month).padStart(2,'0')}`;
+  if(form.freq === 'QUARTERLY') return `Q-${period.year}-Q${period.q}`;
+  if(form.freq === 'ANNUAL') return `A-${period.year}`;
+  return '';
+}
+
+function getDdayInfo(due, done){
+  const diff = daysBetween(new Date(), due);
+  if(done) return { cls: 'done', text: 'DONE' };
+  if(diff < 0) return { cls: 'overdue', text: `+${-diff}d OVERDUE` };
+  if(diff === 0) return { cls: 'urgent', text: 'DUE TODAY' };
+  if(diff <= 3) return { cls: 'urgent', text: `${diff}d left` };
+  if(diff <= 7) return { cls: 'soon', text: `${diff}d left` };
+  return { cls: 'future', text: `${diff}d left` };
+}
+
+function renderBirList(){
+  const el = document.getElementById('birList');
+  if(!_birForms.length){
+    el.innerHTML = '<div class="empty">No BIR forms registered yet. Click "+ Add Form" to create one.</div>';
+    updateBirTabCounts();
+    updateBirTabBadge();
+    updateBirDeadlineSet();
+    return;
+  }
+  if(!_birCurrentPeriod){
+    const now = new Date();
+    _birCurrentPeriod = { year: now.getFullYear(), month: now.getMonth()+1, q: Math.floor(now.getMonth()/3)+1 };
+  }
+
+  const forms = _birForms.filter(f => _birFreqFilter === 'ALL' || f.freq === _birFreqFilter);
+  const rows = forms.map(f => {
+    const pk = periodKey(f, _birCurrentPeriod);
+    const due = computeDueDate(f, _birCurrentPeriod);
+    const compKey = `${f.id}__${pk}`;
+    const done = _birCompletions[compKey];
+    const dday = getDdayInfo(due, done);
+    const doneMeta = done
+      ? `<div class="bir-done-meta">✓ ${escapeHtml(done.by || '—')} · ${done.at && done.at.toDate ? done.at.toDate().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : ''}</div>`
+      : '';
+    const canEdit = window.__me.role === 'admin';
+    const freqLabel = f.freq === 'MONTHLY' ? 'Monthly' : f.freq === 'QUARTERLY' ? 'Quarterly' : 'Annual';
+    const cat = f.cat || 'BIR';
+    const catLabel = CAT_PILL_LABELS[cat] || cat;
+
+    // Photos strip — always available regardless of done state
+    const attachKey = `${f.id}__${pk}`;
+    const attachments = _birAttachments[attachKey];
+    const photos = (attachments && attachments.photos) || [];
+    const thumbs = photos.slice(0, 6).map((p, i) =>
+      `<img class="bir-photo-thumb" src="${p.data}" onclick="event.stopPropagation();openLightbox('${p.data.replace(/'/g,"\\'")}')" alt="proof">`
+    ).join('');
+    const countExtra = photos.length > 6 ? `<span class="bir-photo-count">+${photos.length-6}</span>` : '';
+    const addBtn = `<div class="bir-photo-add" onclick="openPhotoModal('${f.id}','${pk}')" title="Attach photos">📷</div>`;
+    const photoCount = photos.length ? `<span class="bir-photo-count">${photos.length} photo${photos.length===1?'':'s'}</span>` : '<span class="bir-photo-count">Attach proof</span>';
+    const photosHtml = `<div class="bir-photos">${thumbs}${countExtra}${addBtn}${photoCount}</div>`;
+
+    return `
+      <div class="bir-item ${done ? 'done':''}">
+        <div class="bir-check ${done ? 'checked':''}" onclick="toggleBirDone('${f.id}', '${pk}')">${done ? '✓' : ''}</div>
+        <div class="bir-info">
+          <div class="bir-form-code">
+            <span class="cat-pill cat-${cat}">${escapeHtml(catLabel)}</span>
+            ${cat === 'BIR' ? 'BIR ' : ''}${escapeHtml(f.code)}
+            <span class="bir-freq-badge">${freqLabel}</span>
+          </div>
+          <div class="bir-form-desc">${escapeHtml(f.desc || '')}</div>
+          <div class="bir-form-desc" style="color:var(--text3);margin-top:2px;">📅 Due: ${fmtDate(due)} (${DOW_SHORT[due.getDay()]})</div>
+          ${doneMeta}
+          ${photosHtml}
+        </div>
+        <div class="bir-right">
+          <span class="bir-dday ${dday.cls}">${dday.text}</span>
+          ${canEdit ? `<button class="btn btn-sm" onclick="openBirAddForm('${f.id}')" title="Edit">⚙</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+  el.innerHTML = rows || '<div class="empty">No forms match this period.</div>';
+
+  const all = _birForms.map(f => {
+    const pk = periodKey(f, _birCurrentPeriod);
+    return { f, done: !!_birCompletions[`${f.id}__${pk}`] };
+  });
+  const doneCount = all.filter(x => x.done).length;
+  document.getElementById('birPeriodSummary').textContent = `· ${doneCount} of ${all.length} completed`;
+
+  updateBirTabCounts();
+  updateBirTabBadge();
+  updateBirDeadlineSet();
+}
+window.renderBirList = renderBirList;
+
+function updateBirTabCounts(){
+  const counts = { ALL:0, MONTHLY:0, QUARTERLY:0, ANNUAL:0 };
+  _birForms.forEach(f => {
+    const pk = periodKey(f, _birCurrentPeriod);
+    const done = !!_birCompletions[`${f.id}__${pk}`];
+    if(!done){
+      counts.ALL++;
+      counts[f.freq]++;
+    }
+  });
+  Object.keys(counts).forEach(k => {
+    const el = document.getElementById('cnt' + k);
+    if(el) el.textContent = counts[k];
+  });
+}
+
+function updateBirTabBadge(){
+  if(!_birCurrentPeriod) return;
+  let overdue = 0;
+  _birForms.forEach(f => {
+    const pk = periodKey(f, _birCurrentPeriod);
+    if(_birCompletions[`${f.id}__${pk}`]) return;
+    const due = computeDueDate(f, _birCurrentPeriod);
+    const diff = daysBetween(new Date(), due);
+    if(diff <= 3) overdue++;
+  });
+  const badge = document.getElementById('birTabBadge');
+  if(overdue > 0){
+    badge.textContent = overdue;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function updateBirDeadlineSet(){
+  const set = new Set();
+  if(_birCurrentPeriod){
+    _birForms.forEach(f => {
+      const pk = periodKey(f, _birCurrentPeriod);
+      if(_birCompletions[`${f.id}__${pk}`]) return;
+      const due = computeDueDate(f, _birCurrentPeriod);
+      set.add(fmtDate(due));
+    });
+  }
+  window.__birDeadlineSet = set;
+}
+
+async function toggleBirDone(formId, pk){
+  const { db, doc, setDoc, deleteDoc, NS, serverTimestamp } = window.FB;
+  const compId = `${formId}__${pk}`;
+  const existing = _birCompletions[compId];
+  try {
+    if(existing){
+      if(existing.by !== window.__me.name && window.__me.role !== 'admin'){
+        if(!confirm(`This was completed by ${existing.by}. Uncheck as admin?`)){
+          return;
+        }
+      }
+      await deleteDoc(doc(db, NS + '_bir_completions', compId));
+      toast('Marked as not done', '', 'warn');
+    } else {
+      await setDoc(doc(db, NS + '_bir_completions', compId), {
+        formId, periodKey: pk,
+        by: window.__me.name,
+        byRole: window.__me.role,
+        at: serverTimestamp()
+      });
+      const form = _birForms.find(f => f.id === formId);
+      toast('✅ Marked as done', `${form?.code || ''}`, 'ok');
+    }
+  } catch(e){
+    toast('Save failed', e.message || '', 'danger');
+  }
+}
+window.toggleBirDone = toggleBirDone;
+
+/* ---------- Photo Attachment Flow ---------- */
+let _photoCtx = null; // { formId, periodKey }
+const MAX_PHOTOS = 5;
+
+function openPhotoModal(formId, pk){
+  const f = _birForms.find(x => x.id === formId);
+  _photoCtx = { formId, periodKey: pk };
+  const pkLabel = pk.replace('M-','').replace('Q-','').replace('A-','');
+  document.getElementById('photoModalTitle').textContent = `📎 Attach Photos — ${f?.code || ''}`;
+  document.getElementById('photoModalSub').textContent = `${f?.cat || ''} · ${f?.code || ''} · ${pkLabel}`;
+  renderPhotoGallery();
+  document.getElementById('photoOverlay').classList.add('open');
+}
+window.openPhotoModal = openPhotoModal;
+
+function closePhotoModal(){
+  _photoCtx = null;
+  document.getElementById('photoOverlay').classList.remove('open');
+}
+window.closePhotoModal = closePhotoModal;
+
+function renderPhotoGallery(){
+  const gallery = document.getElementById('photoGallery');
+  if(!_photoCtx){ gallery.innerHTML = ''; return; }
+  const attachKey = `${_photoCtx.formId}__${_photoCtx.periodKey}`;
+  const attachments = _birAttachments[attachKey];
+  const photos = (attachments && attachments.photos) || [];
+  if(!photos.length){
+    gallery.innerHTML = '<div class="empty" style="width:100%;padding:18px;">No photos yet. Upload above.</div>';
+    return;
+  }
+  gallery.innerHTML = photos.map((p, i) => {
+    const canDel = window.__me.role === 'admin' || p.addedBy === window.__me.name;
+    const addedStr = p.addedBy ? `by ${escapeHtml(p.addedBy)}` : '';
+    return `
+      <div class="photo-gallery-item">
+        <img src="${p.data}" onclick="openLightbox('${p.data.replace(/'/g,"\\'")}')" alt="proof">
+        ${canDel ? `<button class="photo-gallery-del" onclick="deleteChecklistPhoto(${i})" title="Delete">✕</button>` : ''}
+        ${addedStr ? `<div class="photo-gallery-meta">${addedStr}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+async function handleChecklistPhotos(input){
+  if(!_photoCtx){ input.value = ''; return; }
+  const files = Array.from(input.files || []);
+  input.value = '';
+  if(!files.length) return;
+
+  const attachKey = `${_photoCtx.formId}__${_photoCtx.periodKey}`;
+  const attachments = _birAttachments[attachKey];
+  const current = (attachments && attachments.photos) || [];
+  if(current.length + files.length > MAX_PHOTOS){
+    toast('Too many photos', `Max ${MAX_PHOTOS} photos per item.`, 'warn');
+    return;
+  }
+
+  const prog = document.getElementById('photoProgress');
+  prog.style.display = '';
+  prog.textContent = `Processing ${files.length} photo(s)...`;
+
+  const added = [];
+  for(let i = 0; i < files.length; i++){
+    const f = files[i];
+    prog.textContent = `Processing photo ${i+1} of ${files.length}...`;
+    try {
+      if(!f.type.startsWith('image/')){
+        toast('Skipped', `${f.name} is not an image`, 'warn');
+        continue;
+      }
+      const compressed = await compressImage(f, 1400, 0.82);
+      const approxKb = Math.round(compressed.length * 0.75 / 1024);
+      if(approxKb > 800){
+        const smaller = await compressImage(f, 1100, 0.75);
+        added.push({
+          name: f.name,
+          data: smaller,
+          addedBy: window.__me.name,
+          addedAt: new Date().toISOString()
+        });
+      } else {
+        added.push({
+          name: f.name,
+          data: compressed,
+          addedBy: window.__me.name,
+          addedAt: new Date().toISOString()
+        });
+      }
+    } catch(e){
+      console.error('photo fail', f.name, e);
+      toast('Photo failed', f.name, 'danger');
+    }
+  }
+
+  if(!added.length){
+    prog.style.display = 'none';
+    return;
+  }
+
+  // Save to attachments collection (independent of completion)
+  const { db, doc, setDoc, NS } = window.FB;
+  try {
+    const newPhotos = current.concat(added);
+    await setDoc(doc(db, NS + '_bir_attachments', attachKey), {
+      formId: _photoCtx.formId,
+      periodKey: _photoCtx.periodKey,
+      photos: newPhotos,
+      updatedAt: new Date()
+    }, { merge: true });
+    toast(`✅ Added ${added.length} photo${added.length===1?'':'s'}`, '', 'ok');
+  } catch(e){
+    console.error(e);
+    toast('Save failed', e.message || 'Firestore error', 'danger');
+  } finally {
+    prog.style.display = 'none';
+  }
+}
+window.handleChecklistPhotos = handleChecklistPhotos;
+
+async function deleteChecklistPhoto(index){
+  if(!_photoCtx) return;
+  if(!confirm('Delete this photo?')) return;
+  const attachKey = `${_photoCtx.formId}__${_photoCtx.periodKey}`;
+  const attachments = _birAttachments[attachKey];
+  const photos = (attachments && attachments.photos) || [];
+  const p = photos[index];
+  if(!p) return;
+  if(p.addedBy !== window.__me.name && window.__me.role !== 'admin'){
+    toast('No permission', '', 'warn');
+    return;
+  }
+  const newPhotos = photos.slice(0, index).concat(photos.slice(index+1));
+  const { db, doc, setDoc, deleteDoc, NS } = window.FB;
+  try {
+    if(newPhotos.length === 0){
+      await deleteDoc(doc(db, NS + '_bir_attachments', attachKey));
+    } else {
+      await setDoc(doc(db, NS + '_bir_attachments', attachKey), {
+        photos: newPhotos, updatedAt: new Date()
+      }, { merge: true });
+    }
+    toast('Photo deleted', '', 'ok');
+  } catch(e){
+    toast('Delete failed', e.message || '', 'danger');
+  }
+}
+window.deleteChecklistPhoto = deleteChecklistPhoto;
+
+function openBirAddForm(id){
+  _editingBirId = id || null;
+  const title = document.getElementById('birModalTitle');
+  const delBtn = document.getElementById('birDeleteBtn');
+  if(id){
+    const f = _birForms.find(x => x.id === id);
+    if(!f) return;
+    title.textContent = 'Edit Checklist Item';
+    document.getElementById('birCategory').value = f.cat || 'BIR';
+    document.getElementById('birCode').value = f.code || '';
+    document.getElementById('birDesc').value = f.desc || '';
+    document.getElementById('birFreq').value = f.freq || 'MONTHLY';
+    document.getElementById('birDueDay').value = f.freq === 'ANNUAL' ? (f.dueDay || '') : (f.dueDay || '');
+    if(f.freq === 'ANNUAL'){
+      document.getElementById('birDueMonth').value = f.dueMonth || 1;
+      document.getElementById('birDueDayAnnual').value = f.dueDay || 1;
+    }
+    delBtn.style.display = '';
+  } else {
+    title.textContent = 'Add Checklist Item';
+    document.getElementById('birCategory').value = 'BIR';
+    document.getElementById('birCode').value = '';
+    document.getElementById('birDesc').value = '';
+    document.getElementById('birFreq').value = 'MONTHLY';
+    document.getElementById('birDueDay').value = 10;
+    document.getElementById('birDueMonth').value = '';
+    document.getElementById('birDueDayAnnual').value = '';
+    delBtn.style.display = 'none';
+  }
+  toggleBirFreqFields();
+  document.getElementById('birOverlay').classList.add('open');
+}
+window.openBirAddForm = openBirAddForm;
+
+function toggleBirFreqFields(){
+  const freq = document.getElementById('birFreq').value;
+  document.getElementById('birDueMonthWrap').style.display = freq === 'ANNUAL' ? '' : 'none';
+  document.getElementById('birDueDay').parentElement.style.display = freq === 'ANNUAL' ? 'none' : '';
+}
+document.addEventListener('change', e => {
+  if(e.target && e.target.id === 'birFreq') toggleBirFreqFields();
+});
+
+function closeBirForm(){
+  document.getElementById('birOverlay').classList.remove('open');
+}
+window.closeBirForm = closeBirForm;
+
+async function saveBirForm(){
+  const cat = document.getElementById('birCategory').value;
+  const code = document.getElementById('birCode').value.trim();
+  const desc = document.getElementById('birDesc').value.trim();
+  const freq = document.getElementById('birFreq').value;
+  if(!code){ toast('Please enter a form code', '', 'warn'); return; }
+
+  let payload = { cat, code, desc, freq };
+  if(freq === 'ANNUAL'){
+    const mm = parseInt(document.getElementById('birDueMonth').value, 10);
+    const dd = parseInt(document.getElementById('birDueDayAnnual').value, 10);
+    if(!mm || mm < 1 || mm > 12){ toast('Please enter a valid month (1-12)', '', 'warn'); return; }
+    if(!dd || dd < 1 || dd > 31){ toast('Please enter a valid day (1-31)', '', 'warn'); return; }
+    payload.dueMonth = mm;
+    payload.dueDay = dd;
+  } else {
+    const dd = parseInt(document.getElementById('birDueDay').value, 10);
+    if(!dd || dd < 1){ toast('Please enter a due day', '', 'warn'); return; }
+    payload.dueDay = dd;
+  }
+
+  const { db, doc, setDoc, addDoc, collection, NS } = window.FB;
+  try {
+    if(_editingBirId){
+      await setDoc(doc(db, NS + '_bir_forms', _editingBirId), payload, { merge: true });
+    } else {
+      payload.createdAt = new Date();
+      await addDoc(collection(db, NS + '_bir_forms'), payload);
+    }
+    closeBirForm();
+    toast('Saved', '', 'ok');
+  } catch(e){
+    toast('Save failed', e.message || '', 'danger');
+  }
+}
+window.saveBirForm = saveBirForm;
+
+async function deleteBirForm(){
+  if(!_editingBirId) return;
+  if(!confirm('Delete this BIR form? Existing completion records for this form will also be affected.')) return;
+  const { db, doc, deleteDoc, NS } = window.FB;
+  try {
+    await deleteDoc(doc(db, NS + '_bir_forms', _editingBirId));
+    closeBirForm();
+    toast('Deleted', '', 'ok');
+  } catch(e){
+    toast('Delete failed', e.message || '', 'danger');
+  }
+}
+window.deleteBirForm = deleteBirForm;
+
+/* =======================================================
+   DASHBOARD
+======================================================= */
+function initDashboard(){
+  document.getElementById('dashSubtitle').textContent =
+    `Today is ${new Date().toLocaleDateString('en-US',{weekday:'long', year:'numeric', month:'long', day:'numeric'})}.`;
+  renderDashboardBir();
+  renderDashboardTeamToday();
+  renderDashboardNotices();
+}
+
+function renderDashboardBir(){
+  const now = new Date();
+  const cur = { year: now.getFullYear(), month: now.getMonth()+1, q: Math.floor(now.getMonth()/3)+1 };
+
+  let todayDue = 0, weekDue = 0, overdue = 0;
+  const upcoming = [];
+  _birForms.forEach(f => {
+    const pk = periodKey(f, cur);
+    const done = !!_birCompletions[`${f.id}__${pk}`];
+    if(done) return;
+    const due = computeDueDate(f, cur);
+    const diff = daysBetween(now, due);
+    if(diff < 0) overdue++;
+    else if(diff === 0) todayDue++;
+    if(diff >= 0 && diff <= 7) weekDue++;
+    if(diff >= -14 && diff <= 10){
+      upcoming.push({ form: f, due, diff, pk });
+    }
+  });
+  upcoming.sort((a,b) => a.diff - b.diff);
+
+  document.getElementById('stTodayDue').textContent = todayDue;
+  document.getElementById('stTodayDueSub').textContent = todayDue ? 'Action required' : 'Nothing due today';
+  document.getElementById('stWeekDue').textContent = weekDue;
+  document.getElementById('stOverdue').textContent = overdue;
+
+  const el = document.getElementById('dashUpcomingBir');
+  if(!upcoming.length){
+    el.innerHTML = '<div class="empty">No upcoming deadlines. 👍</div>';
+    return;
+  }
+  el.innerHTML = upcoming.slice(0, 8).map(u => {
+    const d = getDdayInfo(u.due, false);
+    const cat = u.form.cat || 'BIR';
+    const catLabel = CAT_PILL_LABELS[cat] || cat;
+    const codeLabel = cat === 'BIR' ? `BIR ${u.form.code}` : u.form.code;
+    return `
+      <div class="dash-list-item" style="cursor:pointer;" onclick="switchPage('bir')">
+        <div class="bir-check" onclick="event.stopPropagation();toggleBirDone('${u.form.id}', '${u.pk}')"></div>
+        <div class="dash-list-item-main">
+          <div class="dash-list-item-title">
+            <span class="cat-pill cat-${cat}">${escapeHtml(catLabel)}</span>
+            ${escapeHtml(codeLabel)}
+            <span style="color:var(--text3);font-weight:400;font-size:11px;">· ${escapeHtml(u.form.desc || '')}</span>
+          </div>
+          <div class="dash-list-item-sub">📅 Due ${fmtDate(u.due)}</div>
+        </div>
+        <span class="bir-dday ${d.cls}">${d.text}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderDashboardTeamToday(){
+  const today = fmtDate(new Date());
+  const onLeave = _schEvents.filter(e => {
+    const s = fmtDate(new Date(e.start));
+    const f = fmtDate(new Date(e.end || e.start));
+    return today >= s && today <= f;
+  });
+  document.getElementById('stOnLeave').textContent = onLeave.length;
+  document.getElementById('stOnLeaveSub').textContent = onLeave.length ? 'View details →' : 'All present';
+
+  const el = document.getElementById('dashTeamToday');
+  if(!onLeave.length){
+    el.innerHTML = '<div class="empty">No leaves or offsite today.</div>';
+    return;
+  }
+  el.innerHTML = onLeave.map(e => `
+    <div class="dash-list-item" style="cursor:pointer;" onclick="switchPage('schedule');">
+      <div class="sch-event-dot" style="background:${e.color || CAT_COLORS[e.category] || '#1c3a5e'}"></div>
+      <div class="dash-list-item-main">
+        <div class="dash-list-item-title">${escapeHtml(e.title)} ${e.member?`<span style="color:var(--text2);font-weight:400;">· ${escapeHtml(e.member)}</span>`:''}</div>
+        <div class="dash-list-item-sub">${CAT_LABELS[e.category] || ''} · ${fmtDateShort(e.start)}${e.end && e.end !== e.start ? ' – ' + fmtDateShort(e.end) : ''}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderDashboardNotices(){
+  const el = document.getElementById('dashRecentNotices');
+  if(!_notices.length){
+    el.innerHTML = '<div class="empty">No announcements yet.</div>';
+    return;
+  }
+  el.innerHTML = _notices.slice(0, 3).map(n => `
+    <div class="dash-list-item" style="cursor:pointer;" onclick="switchPage('notice')">
+      <div style="width:6px;height:40px;background:var(--accent);border-radius:3px;flex-shrink:0;"></div>
+      <div class="dash-list-item-main">
+        <div class="dash-list-item-title">${escapeHtml(n.title)}</div>
+        <div class="dash-list-item-sub">${escapeHtml(n.authorName || '')} · ${fmtTime(n.createdAt)} ${(n.files||[]).length ? '· 📎 ' + n.files.length : ''}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* =======================================================
+   CHAT
+======================================================= */
+let _chatMsgs = [];
+let _chatOpen = false;
+let _chatLastSeen = parseInt(localStorage.getItem('phfin_chatSeen') || '0', 10);
+
+function initChat(){
+  const { db, onSnapshot, collection, query, orderBy, NS } = window.FB;
+  const q = query(collection(db, NS + '_chat'), orderBy('at', 'asc'));
+  onSnapshot(q, snap => {
+    _chatMsgs = [];
+    snap.forEach(d => _chatMsgs.push({ id: d.id, ...d.data() }));
+    if(_chatMsgs.length > 200) _chatMsgs = _chatMsgs.slice(-200);
+    renderChat();
+    updateChatBadge();
+  });
+}
+
+function toggleChat(){
+  _chatOpen = !_chatOpen;
+  document.getElementById('chatPanel').classList.toggle('hidden', !_chatOpen);
+  if(_chatOpen){
+    _chatLastSeen = Date.now();
+    localStorage.setItem('phfin_chatSeen', String(_chatLastSeen));
+    updateChatBadge();
+    setTimeout(() => {
+      const el = document.getElementById('chatMessages');
+      el.scrollTop = el.scrollHeight;
+      document.getElementById('chatInput').focus();
+    }, 100);
+  }
+}
+window.toggleChat = toggleChat;
+
+function renderChat(){
+  const el = document.getElementById('chatMessages');
+  const wasAtBottom = Math.abs((el.scrollHeight - el.scrollTop) - el.clientHeight) < 50;
+  if(!_chatMsgs.length){
+    el.innerHTML = '<div class="chat-system">No messages yet.</div>';
+    return;
+  }
+  el.innerHTML = _chatMsgs.map(m => {
+    const mine = m.name === window.__me.name;
+    const canDel = window.__me.role === 'admin' || mine;
+    const t = m.at && m.at.toDate ? m.at.toDate() : null;
+    const timeStr = t ? t.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : '';
+    return `
+      <div class="chat-msg ${mine?'me':'other'}">
+        <div class="chat-msg-meta">
+          ${escapeHtml(m.name || '—')}
+          ${m.role === 'admin' ? '<span class="chat-msg-meta-admin">· Admin</span>' : ''}
+        </div>
+        <div class="chat-msg-wrap">
+          <div class="chat-msg-bubble">${escapeHtml(m.text)}</div>
+          ${canDel ? `<button class="chat-msg-del" onclick="deleteChatMsg('${m.id}')" title="Delete">🗑</button>` : ''}
+        </div>
+        <div class="chat-msg-time">${timeStr}</div>
+      </div>
+    `;
+  }).join('');
+  if(wasAtBottom || _chatOpen) el.scrollTop = el.scrollHeight;
+}
+
+function updateChatBadge(){
+  const unread = _chatMsgs.filter(m => {
+    if(m.name === window.__me.name) return false;
+    const t = m.at && m.at.toDate ? m.at.toDate().getTime() : 0;
+    return t > _chatLastSeen;
+  }).length;
+  const badge = document.getElementById('chatFabBadge');
+  if(!_chatOpen && unread > 0){
+    badge.textContent = unread > 99 ? '99+' : unread;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  const { db, addDoc, collection, NS, serverTimestamp } = window.FB;
+  try {
+    await addDoc(collection(db, NS + '_chat'), {
+      name: window.__me.name,
+      role: window.__me.role,
+      text,
+      at: serverTimestamp()
+    });
+  } catch(e){
+    toast('Failed to send', e.message || '', 'danger');
+  }
+}
+window.sendChat = sendChat;
+
+async function deleteChatMsg(id){
+  const m = _chatMsgs.find(x => x.id === id);
+  if(!m) return;
+  if(m.name !== window.__me.name && window.__me.role !== 'admin'){
+    toast('No permission to delete', '', 'warn'); return;
+  }
+  if(!confirm('Delete this message?')) return;
+  const { db, doc, deleteDoc, NS } = window.FB;
+  try {
+    await deleteDoc(doc(db, NS + '_chat', id));
+  } catch(e){
+    toast('Delete failed', e.message || '', 'danger');
+  }
+}
+window.deleteChatMsg = deleteChatMsg;
+
+window.checkPw = checkPw;
+</script>
+
+</body>
+</html>
