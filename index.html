@@ -203,6 +203,21 @@
 
   .bir-period-select { padding: 7px 11px; border: 1px solid var(--border2); border-radius: var(--radius-sm); font-size: 13px; background: var(--surface); color: var(--text); outline: none; font-family: inherit; cursor: pointer; }
   .bir-period-select:focus { border-color: var(--accent); }
+  /* New: period navigation (prev / month-picker / next / today) */
+  .bir-period-nav { display: inline-flex; align-items: center; gap: 4px; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 2px; }
+  .bir-period-nav .pn-btn { background: none; border: none; padding: 6px 10px; font-size: 14px; cursor: pointer; color: var(--text2); border-radius: 4px; font-family: inherit; line-height: 1; }
+  .bir-period-nav .pn-btn:hover { background: var(--bg); color: var(--text); }
+  .bir-period-input { padding: 5px 8px; border: none; background: transparent; font-size: 13px; color: var(--text); outline: none; font-family: inherit; cursor: pointer; min-width: 130px; font-weight: 600; }
+  .bir-period-input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; }
+  .bir-period-input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+  /* Frequency segmented control inside Add/Edit modal */
+  .freq-segmented { display: flex; gap: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 3px; }
+  .freq-seg-btn { flex: 1; background: transparent; border: none; padding: 9px 8px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; font-family: inherit; border-radius: 5px; transition: all 0.15s; }
+  .freq-seg-btn:hover { color: var(--text); }
+  .freq-seg-btn.active { background: var(--surface); color: var(--accent); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+  .form-hint { font-size: 11px; color: var(--text3); margin-top: 6px; line-height: 1.5; }
+  .bir-date-input { width: 100%; padding: 9px 12px; border: 1px solid var(--border2); border-radius: var(--radius-sm); font-size: 14px; color: var(--text); outline: none; font-family: inherit; background: var(--surface); cursor: pointer; }
+  .bir-date-input:focus { border-color: var(--accent); }
 
   .bir-freq-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text3); padding: 2px 6px; border: 1px solid var(--border); border-radius: 3px; }
 
@@ -281,7 +296,211 @@
   .toast-body { font-size: 12px; color: var(--text2); line-height: 1.4; }
   @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
-  /* ========== MOBILE ========== */
+  /* ========== PURCHASE ORDER FORM ========== */
+  .po-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; max-width: 820px; margin: 0 auto 14px; padding: 14px 20px 0; }
+  .po-toolbar .po-toolbar-info { font-size: 12px; color: var(--text2); margin-left: auto; }
+  .po-page { background: #fff; max-width: 820px; margin: 0 auto 32px; padding: 28px 36px 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid var(--border); color: #000; font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.35; }
+  .po-header { width: 100%; margin-bottom: 14px; }
+  .po-header img { width: 100%; height: auto; display: block; max-width: 100%; }
+  .po-title { text-align: center; font-size: 14pt; font-weight: 700; margin: 8px 0 18px; color: #000; }
+  /* Plain inputs that look like underlined fields */
+  .po-input { border: none; border-bottom: 1px solid #888; outline: none; background: transparent; font-family: inherit; font-size: inherit; padding: 1px 2px; min-width: 0; color: #000; }
+  .po-input:focus { border-bottom-color: #1c3a5e; background: #f3f7fb; }
+  .po-input.po-num { text-align: right; }
+  /* Top info grid — split into left half (Supplier/Address) and right half (Date/Contacts) */
+  .po-info { display: grid; grid-template-columns: 1.4fr 1fr; gap: 4px 24px; margin-bottom: 14px; }
+  .po-info-side { display: grid; grid-template-columns: max-content 1fr; gap: 5px 8px; align-items: end; }
+  .po-info .po-lab { text-align: right; font-size: 11pt; padding-right: 2px; white-space: nowrap; }
+  .po-pofield { display: grid; grid-template-columns: 110px 220px; gap: 4px 8px; margin-bottom: 14px; align-items: end; }
+  .po-pofield .po-lab { text-align: right; }
+  /* Supplier confirmation block */
+  .po-confirm-title { font-weight: 700; margin-bottom: 6px; font-size: 11pt; }
+  .po-confirm { margin-bottom: 14px; }
+  .po-confirm-row { display: grid; grid-template-columns: 60px 180px 60px auto auto 1fr; gap: 4px 8px; align-items: end; margin-bottom: 4px; }
+  .po-confirm-row .po-lab { text-align: right; }
+  .po-confirm-row .po-cb { display: inline-flex; align-items: center; gap: 4px; font-size: 11pt; }
+  .po-confirm-row .po-cb input { transform: translateY(1px); }
+  .po-sigline-cell { text-align: center; padding-left: 16px; }
+  .po-sigline { border-bottom: 1px solid #000; height: 18px; margin: 0 0 2px; }
+  .po-sig-caption { font-style: italic; font-size: 9.5pt; color: #000; }
+  .po-remarks { display: grid; grid-template-columns: 60px 1fr; gap: 4px 8px; align-items: end; }
+  .po-remarks .po-lab { text-align: right; }
+  /* Items table */
+  .po-items { width: 100%; border-collapse: collapse; margin: 16px 0 6px; font-size: 10pt; }
+  .po-items th, .po-items td { border: 1px solid #000; padding: 3px 5px; height: 22px; vertical-align: middle; }
+  .po-items th { background: #fff; font-weight: 600; text-align: center; font-size: 10pt; }
+  .po-items td.po-row-num { text-align: center; width: 28px; position: relative; }
+  .po-items td.po-col-unit { width: 48px; }
+  .po-items td.po-col-qty { width: 38px; }
+  .po-items td.po-col-price { width: 92px; }
+  .po-items td.po-col-total { width: 110px; }
+  .po-items td.po-col-purpose { width: 120px; }
+  .po-items input.po-cell { width: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: 10pt; padding: 0 2px; box-sizing: border-box; }
+  .po-items input.po-cell:focus { background: #f3f7fb; }
+  .po-items input.po-num { text-align: right; }
+  .po-items td.po-total-cell { text-align: right; padding-right: 6px; font-variant-numeric: tabular-nums; }
+  .po-items tfoot td { font-weight: 700; }
+  .po-items tfoot td.po-total-label { text-align: center; }
+  /* Per-row delete button — its own column at the right edge of the table.
+     Always visible on screen; the .no-print class on the cells hides the
+     entire column when printing, so the printed PO looks unchanged. */
+  .po-items th.po-col-del,
+  .po-items td.po-col-del { width: 40px; border: none; background: transparent; padding: 0 4px 0 8px; vertical-align: middle; text-align: left; }
+  .po-row-del-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #f5b3b3; background: #fff5f5; color: #c92a2a; cursor: pointer; padding: 0; font-size: 14px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-family: inherit; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.08); transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s; }
+  .po-row-del-btn:hover { background: #c92a2a; color: #fff; border-color: #c92a2a; transform: scale(1.08); }
+  .po-add-row-wrap { margin: 4px 0 12px; }
+  .po-add-row-btn { background: var(--bg); border: 1px dashed var(--border2); color: var(--text2); padding: 6px 14px; font-size: 12px; cursor: pointer; border-radius: var(--radius-sm); font-family: inherit; }
+  .po-add-row-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); border-style: solid; }
+  /* Signatures — names/titles editable like the rest of the form */
+  .po-sigs { margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; font-size: 11pt; }
+  .po-sig-row { display: contents; }
+  .po-sig-block { display: grid; grid-template-columns: 100px 1fr; gap: 4px 12px; margin-bottom: 12px; }
+  .po-sig-block.po-approved { grid-column: 1; }
+  .po-sig-label { text-align: left; }
+  .po-sig-name-input { display: block; width: 100%; font-family: inherit; font-size: 11pt; font-weight: 700; color: #000; border: none; outline: none; background: transparent; padding: 1px 2px; margin: 0; box-sizing: border-box; }
+  .po-sig-title-input { display: block; width: 100%; font-family: inherit; font-size: 10.5pt; font-style: italic; color: #000; border: none; outline: none; background: transparent; padding: 1px 2px; margin: 0; margin-top: 1px; box-sizing: border-box; }
+  .po-sig-name-input:hover, .po-sig-title-input:hover { background: #f3f7fb; }
+  .po-sig-name-input:focus, .po-sig-title-input:focus { background: #f3f7fb; box-shadow: inset 0 -1px 0 #1c3a5e; }
+  /* Reference photo attachments */
+  .po-attachments { margin-top: 24px; padding-top: 14px; border-top: 1px dashed #999; }
+  .po-attach-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .po-attach-title { font-weight: 700; font-size: 11pt; color: #000; }
+  .po-attach-hint { font-size: 10pt; color: #666; font-style: italic; }
+  .po-attach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .po-attach-empty { color: #999; font-size: 10pt; font-style: italic; padding: 10px 4px; }
+  .po-attach-item { position: relative; border: 1px solid #ccc; border-radius: 4px; background: #fafafa; overflow: hidden; }
+  .po-attach-item img { width: 100%; height: auto; display: block; max-height: 220px; object-fit: contain; background: #fff; }
+  .po-attach-caption { padding: 4px 6px; font-size: 9pt; color: #555; background: #fff; border-top: 1px solid #eee; word-break: break-word; }
+  .po-attach-del { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.95); border: 1px solid #c92a2a; color: #c92a2a; cursor: pointer; font-size: 11px; padding: 0; display: flex; align-items: center; justify-content: center; line-height: 1; font-family: inherit; }
+  .po-attach-del:hover { background: #c92a2a; color: #fff; }
+  /* Footer */
+  .po-footer { text-align: right; font-size: 9pt; font-style: italic; color: #555; margin-top: 36px; }
+
+  /* ========== PRINT ========== */
+  @media print {
+    @page { size: A4 portrait; margin: 12mm 14mm; }
+    html, body { background: #fff !important; }
+    /* Hide chrome, other pages, and modals — using SPECIFIC selectors (no universal `*`)
+       so the browser doesn't have to recalculate styles on every element in the document.
+       This is what was making "Print / Save as PDF" feel slow. */
+    .topbar, .page-nav, .chat-fab, .chat-panel, .toast-wrap, .overlay,
+    #page-dash, #page-notice, #page-schedule, #page-bir,
+    .po-toolbar, .no-print, .po-row-del, .po-add-row-wrap, .po-attach-del { display: none !important; }
+    /* Force PO page visible even if not the currently active tab */
+    #page-po { display: block !important; }
+    /* Remove the screen-only frame around the form */
+    .po-page { box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 auto !important; max-width: 100% !important; }
+    /* Style adjustments for inputs in print */
+    .po-input, .po-items input.po-cell, .po-sig-name-input, .po-sig-title-input { background: transparent !important; box-shadow: none !important; color: #000 !important; }
+    .po-input { border-bottom-color: #555 !important; }
+    /* Avoid splitting the items table mid-row */
+    .po-items, .po-items tr, .po-items tbody, .po-items thead { page-break-inside: avoid; }
+    .po-sigs { page-break-inside: avoid; }
+    /* Reference photos: start on a fresh page if any exist, larger thumbnails */
+    .po-attachments:not(.po-has-photos) { display: none !important; }
+    .po-attachments.po-has-photos { page-break-before: always; margin-top: 0 !important; padding-top: 0 !important; border-top: none !important; }
+    .po-attach-grid { grid-template-columns: 1fr 1fr !important; gap: 10mm !important; }
+    .po-attach-item { page-break-inside: avoid; border: 1px solid #888 !important; }
+    .po-attach-item img { max-height: 9cm !important; }
+  }
+
+  /* ========== SCREEN-ONLY: comfortable editing layout ==========
+     The original compact layout (defined above) is what shows up when the user
+     hits "Print / Save as PDF" — that is the official PO look. On screen we
+     give every input field its own visible box, more padding, taller rows, and
+     a wider page so it's easier to fill in. None of these rules apply during
+     printing, so the printed PDF stays compact and professional. */
+  @media screen {
+    .po-page { max-width: 1080px; padding: 30px 36px 36px; }
+
+    /* --- Top header / info / confirmation inputs ---
+       Convert the thin underline-only fields into proper form fields. */
+    .po-input {
+      border: 1px solid #d8d8d4;
+      border-radius: 6px;
+      background: #fafaf8;
+      padding: 8px 11px;
+      min-height: 36px;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+    .po-input:hover { border-color: #b8b8b3; background: #fff; }
+    .po-input:focus {
+      border: 1px solid #1c3a5e;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(28,58,94,0.10);
+    }
+
+    /* Looser grids so labels and fields don't feel crowded */
+    .po-info { gap: 12px 28px; margin-bottom: 20px; }
+    .po-info-side { gap: 10px 12px; align-items: center; }
+    .po-pofield { grid-template-columns: 110px 260px; gap: 10px 12px; margin-bottom: 20px; align-items: center; }
+    .po-confirm { margin-bottom: 18px; }
+    .po-confirm-title { margin-bottom: 10px; font-size: 12pt; }
+    .po-confirm-row { gap: 10px 12px; margin-bottom: 8px; align-items: center; }
+    .po-remarks { gap: 10px 12px; align-items: center; }
+    .po-sigline { height: 36px; }
+
+    /* --- Items table: each input is its own clearly separated cell --- */
+    .po-items { font-size: 11pt; margin: 18px 0 8px; }
+    .po-items th { padding: 10px 6px; font-size: 10.5pt; background: #f3f3f0; }
+    .po-items td { padding: 6px 5px; height: auto; vertical-align: middle; }
+    .po-items td.po-row-num { background: #f5f5f2; font-weight: 600; }
+
+    /* Wider columns on screen so the bigger inputs fit comfortably.
+       Print reverts to the original tighter widths automatically.
+       Qty and Purpose got the biggest bumps; Item Description gets all the
+       remaining space (auto-fill), so it grows along with the wider page. */
+    .po-items td.po-col-unit, .po-items th:nth-child(3) { width: 80px; }
+    .po-items td.po-col-qty,  .po-items th:nth-child(4) { width: 100px; }
+    .po-items td.po-col-price, .po-items th:nth-child(5) { width: 130px; }
+    .po-items td.po-col-total, .po-items th:nth-child(6) { width: 140px; }
+    .po-items td.po-col-purpose, .po-items th:nth-child(7) { width: 220px; }
+
+    .po-items input.po-cell {
+      font-size: 11pt;
+      padding: 9px 10px;
+      min-height: 38px;
+      border: 1px solid #d8d8d4;
+      border-radius: 5px;
+      background: #fff;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .po-items input.po-cell:hover { border-color: #b8b8b3; }
+    .po-items input.po-cell:focus {
+      border-color: #1c3a5e;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(28,58,94,0.10);
+    }
+    .po-items td.po-total-cell {
+      font-size: 11pt;
+      font-weight: 600;
+      background: #f7f7f5;
+      padding-right: 10px;
+    }
+
+    /* --- Signature inputs: same visual language --- */
+    .po-sigs { margin-top: 30px; gap: 10px 28px; }
+    .po-sig-block { gap: 10px 14px; margin-bottom: 16px; align-items: start; }
+    .po-sig-name-input,
+    .po-sig-title-input {
+      border: 1px solid #d8d8d4;
+      border-radius: 5px;
+      background: #fafaf8;
+      padding: 7px 10px;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+    .po-sig-title-input { margin-top: 5px; }
+    .po-sig-name-input:hover,
+    .po-sig-title-input:hover { border-color: #b8b8b3; background: #fff; }
+    .po-sig-name-input:focus,
+    .po-sig-title-input:focus {
+      border: 1px solid #1c3a5e;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(28,58,94,0.10);
+    }
+  }
+
+
   @media (max-width: 640px) {
     .topbar { padding: 0 14px; }
     .topbar-title { font-size: 14px; }
@@ -338,6 +557,7 @@
     ✅ Checklist
     <span class="tab-badge" id="birTabBadge" style="display:none">0</span>
   </button>
+  <button class="page-tab" data-page="po" onclick="switchPage('po')">📝 Purchase Order</button>
 </nav>
 
 <!-- ============ PAGE: DASHBOARD ============ -->
@@ -454,7 +674,12 @@
 
     <div class="bir-toolbar">
       <label style="font-size:12px;color:var(--text2);font-weight:600;">Period:</label>
-      <select class="bir-period-select" id="birPeriodSelect" onchange="renderBirList()"></select>
+      <div class="bir-period-nav">
+        <button type="button" class="pn-btn" onclick="shiftBirPeriod(-1)" title="Previous month">‹</button>
+        <input type="month" id="birPeriodInput" class="bir-period-input" oninput="onBirPeriodInputChange()">
+        <button type="button" class="pn-btn" onclick="shiftBirPeriod(1)" title="Next month">›</button>
+      </div>
+      <button type="button" class="btn btn-sm" onclick="goToBirToday()">Today</button>
       <span id="birPeriodSummary" style="font-size:12px;color:var(--text3);"></span>
     </div>
 
@@ -463,6 +688,7 @@
       <button class="bir-tab" data-freq="MONTHLY" onclick="setBirFreq('MONTHLY')">Monthly <span class="bir-tab-count" id="cntMONTHLY">0</span></button>
       <button class="bir-tab" data-freq="QUARTERLY" onclick="setBirFreq('QUARTERLY')">Quarterly <span class="bir-tab-count" id="cntQUARTERLY">0</span></button>
       <button class="bir-tab" data-freq="ANNUAL" onclick="setBirFreq('ANNUAL')">Annual <span class="bir-tab-count" id="cntANNUAL">0</span></button>
+      <button class="bir-tab" data-freq="ONETIME" onclick="setBirFreq('ONETIME')">One-time <span class="bir-tab-count" id="cntONETIME">0</span></button>
     </div>
 
     <div class="bir-list" id="birList">
@@ -475,6 +701,131 @@
       Checking an item records the person's name and timestamp, and you can attach photos (BIR receipts, filing confirmations, eFPS screenshots) as proof. Everything syncs to the whole team in real time.
       Default due dates follow general rules — please adjust based on your eFPS group, PEZA zone, holidays, and any changes under CREATE / EOPT.
     </div>
+  </div>
+</div>
+
+<!-- ============ PAGE: PURCHASE ORDER ============ -->
+<div id="page-po" class="page-content">
+  <div class="po-toolbar no-print">
+    <button class="btn btn-primary" onclick="printPo()">🖨️ Print / Save as PDF</button>
+    <button class="btn" onclick="resetPoForm()">Clear</button>
+    <span class="po-toolbar-info">Tip: in the print dialog, choose "Save as PDF" to download a PDF copy.</span>
+  </div>
+
+  <div class="po-page" id="poPage">
+    <div class="po-header">
+      <img src="data:image/png;base64,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" alt="KSM-RJS Manufacturing Corporation">
+    </div>
+
+    <div class="po-title">Purchase Order</div>
+
+    <div class="po-info">
+      <div class="po-info-side">
+        <span class="po-lab">P.O. Number:</span>
+        <input class="po-input" type="text" data-po="poNumber">
+        <span class="po-lab">Supplier Name:</span>
+        <input class="po-input" type="text" data-po="supplierName">
+        <span class="po-lab">Address:</span>
+        <input class="po-input" type="text" data-po="address1">
+        <span class="po-lab"></span>
+        <input class="po-input" type="text" data-po="address2">
+      </div>
+      <div class="po-info-side">
+        <span class="po-lab">Date:</span>
+        <input class="po-input" type="date" data-po="date">
+        <span class="po-lab">Contact Person:</span>
+        <input class="po-input" type="text" data-po="contactPerson">
+        <span class="po-lab">Contact Number:</span>
+        <input class="po-input" type="text" data-po="contactNumber">
+      </div>
+    </div>
+
+    <div class="po-confirm">
+      <div class="po-confirm-title">Supplier Confirmation</div>
+      <div class="po-confirm-row">
+        <span class="po-lab">Date:</span>
+        <input class="po-input" type="date" data-po="confirmDate">
+        <span class="po-lab">Status:</span>
+        <label class="po-cb"><input type="checkbox" data-po="statusAccept" onclick="poStatusToggle(this,'reject')"> Accept</label>
+        <label class="po-cb"><input type="checkbox" data-po="statusReject" onclick="poStatusToggle(this,'accept')"> Reject</label>
+        <div class="po-sigline-cell">
+          <div class="po-sigline"></div>
+          <div class="po-sig-caption">Signature over Printed Name of<br>Authorized Representative</div>
+        </div>
+      </div>
+      <div class="po-remarks">
+        <span class="po-lab">Remarks:</span>
+        <input class="po-input" type="text" data-po="remarks">
+      </div>
+    </div>
+
+    <table class="po-items">
+      <thead>
+        <tr>
+          <th style="width:28px;"></th>
+          <th>Item Description / Specification</th>
+          <th class="po-col-unit">Unit</th>
+          <th class="po-col-qty">Qty</th>
+          <th class="po-col-price">Unit Price</th>
+          <th class="po-col-total">Total Price</th>
+          <th class="po-col-purpose">Purpose</th>
+          <th class="po-col-del no-print" aria-label="Delete row"></th>
+        </tr>
+      </thead>
+      <tbody id="poItemsTbody">
+        <!-- Rows added dynamically by JS on load + via Add Row button -->
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="5" style="border-right:none;"></td>
+          <td class="po-col-total po-total-cell" id="poGrandTotal">&nbsp;</td>
+          <td class="po-total-label">Total</td>
+          <td class="po-col-del no-print"></td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="po-add-row-wrap no-print">
+      <button type="button" class="po-add-row-btn" onclick="addPoRow()">+ Add Row</button>
+    </div>
+
+    <div class="po-sigs">
+      <div class="po-sig-block">
+        <span class="po-sig-label">Prepared by:</span>
+        <div>
+          <input class="po-sig-name-input" type="text" data-po="preparedName" value="Lonelle John Alcaide" title="Click to edit name">
+          <input class="po-sig-title-input" type="text" data-po="preparedTitle" value="Accounting Staff" title="Click to edit title">
+        </div>
+      </div>
+      <div class="po-sig-block">
+        <span class="po-sig-label">Noted by:</span>
+        <div>
+          <input class="po-sig-name-input" type="text" data-po="notedName" value="Genelyn T. Repil" title="Click to edit name">
+          <input class="po-sig-title-input" type="text" data-po="notedTitle" value="Accounting Supervisor" title="Click to edit title">
+        </div>
+      </div>
+      <div class="po-sig-block po-approved">
+        <span class="po-sig-label">Approved by:</span>
+        <div>
+          <input class="po-sig-name-input" type="text" data-po="approvedName" value="Dogyu Jang" title="Click to edit name">
+          <input class="po-sig-title-input" type="text" data-po="approvedTitle" value="Managing Director" title="Click to edit title">
+        </div>
+      </div>
+    </div>
+
+    <!-- Reference photos: shown inline on screen, on a fresh page when printed -->
+    <div class="po-attachments" id="poAttachmentsSection">
+      <div class="po-attach-header">
+        <span class="po-attach-title">📎 Reference Photos</span>
+        <button class="btn btn-sm no-print" type="button" onclick="document.getElementById('poFileInput').click()">+ Add Photo</button>
+        <span class="po-attach-hint no-print">JPEG / PNG · auto-compressed · prints on a separate page</span>
+        <input type="file" id="poFileInput" accept="image/*" multiple style="display:none" onchange="handlePoPhotos(this)">
+      </div>
+      <div class="po-attach-grid" id="poAttachGrid">
+        <div class="po-attach-empty no-print">No reference photos attached.</div>
+      </div>
+    </div>
+
+    <div class="po-footer">ACF-MGT-FRM-00006 / Rev. 1 / April 2026</div>
   </div>
 </div>
 
@@ -587,32 +938,39 @@
       <label class="form-label">Description</label>
       <input type="text" id="birDesc" placeholder="e.g. Monthly Remittance Return of Income Taxes Withheld...">
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Frequency *</label>
-        <select id="birFreq">
-          <option value="MONTHLY">Monthly</option>
-          <option value="QUARTERLY">Quarterly</option>
-          <option value="ANNUAL">Annual</option>
-        </select>
+    <div class="form-group">
+      <label class="form-label">Frequency / Classification *</label>
+      <div class="freq-segmented">
+        <button type="button" class="freq-seg-btn active" data-freq="MONTHLY" onclick="selectBirFreq('MONTHLY')">📅 Monthly</button>
+        <button type="button" class="freq-seg-btn" data-freq="QUARTERLY" onclick="selectBirFreq('QUARTERLY')">📊 Quarterly</button>
+        <button type="button" class="freq-seg-btn" data-freq="ANNUAL" onclick="selectBirFreq('ANNUAL')">🗓️ Annual</button>
+        <button type="button" class="freq-seg-btn" data-freq="ONETIME" onclick="selectBirFreq('ONETIME')">📌 One-time</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">Due Day *</label>
-        <input type="number" id="birDueDay" min="1" max="90" placeholder="e.g. 10">
-      </div>
+      <input type="hidden" id="birFreq" value="MONTHLY">
     </div>
-    <div class="form-group" id="birDueMonthWrap" style="display:none;">
-      <label class="form-label">Annual Due Date (Month / Day) *</label>
-      <div class="form-row">
-        <input type="number" id="birDueMonth" min="1" max="12" placeholder="Month (1-12)">
-        <input type="number" id="birDueDayAnnual" min="1" max="31" placeholder="Day (1-31)">
-      </div>
+
+    <div class="form-group" id="birMonthlyWrap">
+      <label class="form-label">Due Day of Next Month *</label>
+      <input type="number" id="birDueDay" min="1" max="31" placeholder="e.g. 10">
+      <div class="form-hint">Recurs each month. Example: 10 → due on the 10th of the month <em>after</em> each filing period.</div>
     </div>
-    <div class="form-group" style="background:var(--bg);padding:10px 12px;border-radius:6px;font-size:11.5px;color:var(--text2);line-height:1.55;">
-      <strong style="color:var(--text);">ℹ️ How due dates work</strong><br>
-      · <strong>Monthly:</strong> Due on day N of the following month (e.g. 10 → 10th of next month)<br>
-      · <strong>Quarterly:</strong> Due N days after quarter-end (e.g. 25 → Apr 25, Jul 25, Oct 25, Jan 25)<br>
-      · <strong>Annual:</strong> Due on fixed month/day each year (e.g. April 15)
+
+    <div class="form-group" id="birQuarterlyWrap" style="display:none;">
+      <label class="form-label">Days After Quarter-End *</label>
+      <input type="number" id="birDueDayQ" min="1" max="90" placeholder="e.g. 25">
+      <div class="form-hint">Recurs each quarter. Example: 25 → due 25 days after the quarter ends (Apr 25, Jul 25, Oct 25, Jan 25).</div>
+    </div>
+
+    <div class="form-group" id="birAnnualWrap" style="display:none;">
+      <label class="form-label">Annual Due Date *</label>
+      <input type="date" id="birDueDate" class="bir-date-input">
+      <div class="form-hint">Pick any date on the calendar. The item will recur on the same month/day every year (the year you pick doesn't matter).</div>
+    </div>
+
+    <div class="form-group" id="birOnetimeWrap" style="display:none;">
+      <label class="form-label">Specific Date *</label>
+      <input type="date" id="birOnetimeDate" class="bir-date-input">
+      <div class="form-hint">Single deadline — does not recur. Pick any date on the calendar.</div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-danger" id="birDeleteBtn" onclick="deleteBirForm()" style="display:none;margin-right:auto;">Delete</button>
@@ -676,7 +1034,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot,
+  getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, onSnapshot,
   collection, writeBatch, addDoc, query, orderBy, serverTimestamp, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -697,7 +1055,7 @@ const NS = 'phfin';
 
 // Expose for non-module script below
 window.FB = {
-  db, doc, getDoc, setDoc, deleteDoc, onSnapshot,
+  db, doc, getDoc, getDocs, setDoc, deleteDoc, onSnapshot,
   collection, writeBatch, addDoc, query, orderBy, serverTimestamp, updateDoc, NS
 };
 
@@ -903,7 +1261,8 @@ function renderNotices(){
     return;
   }
   el.innerHTML = _notices.map(n => {
-    const canEdit = window.__me.role === 'admin' || n.authorName === window.__me.name;
+    // Any logged-in user can edit / delete any announcement
+    const canEdit = true;
     const files = (n.files || []).map(f =>
       `<a class="notice-file" href="${f.data}" download="${escapeHtml(f.name)}" target="_blank">📎 ${escapeHtml(f.name)}</a>`
     ).join('');
@@ -1153,7 +1512,8 @@ function renderCalendar(){
     const eventsHtml = monthEvents.map(e => {
       const cat = CAT_LABELS[e.category] || '';
       const dateStr = e.start === e.end || !e.end ? fmtDateShort(e.start) : `${fmtDateShort(e.start)} – ${fmtDateShort(e.end)}`;
-      const canEdit = window.__me.role === 'admin' || e.authorName === window.__me.name;
+      // Any logged-in user can edit / delete any event
+      const canEdit = true;
       return `<div class="sch-event-item" ${canEdit?`onclick="openSchForm('${e.id}')" style="cursor:pointer;"`:''}>
         <div class="sch-event-dot" style="background:${e.color || CAT_COLORS[e.category] || '#1c3a5e'}"></div>
         <div class="sch-event-info">
@@ -1265,8 +1625,8 @@ function openSchForm(id, prefillDate){
     document.getElementById('schDesc').value = e.desc || '';
     document.getElementById('schCategory').value = e.category || 'LEAVE';
     _selectedSchColor = e.color || CAT_COLORS[e.category] || CAT_COLORS.LEAVE;
-    const canEdit = window.__me.role === 'admin' || e.authorName === window.__me.name;
-    delBtn.style.display = canEdit ? '' : 'none';
+    // Any logged-in user can delete any event
+    delBtn.style.display = '';
   } else {
     document.getElementById('schModalTitle').textContent = 'Add Event';
     document.getElementById('schMember').value = window.__me.name;
@@ -1402,6 +1762,18 @@ function getChecklistDuesInRange(start, end){
           results.push({ form, period, due, pk, done: !!_birCompletions[`${form.id}__${pk}`] });
         }
       }
+    } else if(form.freq === 'ONETIME'){
+      if(form.dueDate){
+        const [yy, mm, dd] = form.dueDate.split('-').map(Number);
+        if(yy && mm && dd){
+          const due = new Date(yy, mm - 1, dd);
+          if(due >= start && due <= end){
+            const period = { year: yy, month: mm, q: Math.floor((mm - 1) / 3) + 1 };
+            const pk = periodKey(form, period);
+            results.push({ form, period, due, pk, done: !!_birCompletions[`${form.id}__${pk}`] });
+          }
+        }
+      }
     }
   });
   return results;
@@ -1411,26 +1783,38 @@ function getChecklistDuesInRange(start, end){
 function jumpToChecklistItem(form, period){
   switchPage('bir');
   setTimeout(() => {
-    const sel = document.getElementById('birPeriodSelect');
-    for(const opt of sel.options){
-      let o;
-      try { o = JSON.parse(opt.value); } catch(e){ continue; }
-      let match = o.year === period.year;
-      if(match && form.freq === 'MONTHLY')   match = o.month === period.month;
-      if(match && form.freq === 'QUARTERLY') match = o.q === period.q;
-      // Annual: just first option with matching year works
-      if(match){
-        sel.value = opt.value;
-        _birCurrentPeriod = o;
-        renderBirList();
-        // Highlight the item briefly by scrolling list into view
-        setTimeout(() => {
-          const listEl = document.getElementById('birList');
-          if(listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-        break;
+    // Determine which month to navigate to based on the form's frequency
+    let y, m;
+    if(form.freq === 'MONTHLY'){
+      y = period.year;
+      m = period.month;
+    } else if(form.freq === 'QUARTERLY'){
+      y = period.year;
+      m = (period.q - 1) * 3 + 1; // first month of the quarter
+    } else if(form.freq === 'ONETIME'){
+      // Jump to the month/year of the specific date
+      if(form.dueDate){
+        const [yy, mm] = form.dueDate.split('-').map(Number);
+        y = yy; m = mm;
+      } else {
+        const now = new Date();
+        y = now.getFullYear(); m = now.getMonth() + 1;
       }
+    } else { // ANNUAL
+      y = period.year;
+      m = form.dueMonth || 1;
     }
+    const inp = document.getElementById('birPeriodInput');
+    if(inp){
+      inp.value = `${y}-${String(m).padStart(2, '0')}`;
+      _birCurrentPeriod = { year: y, month: m, q: Math.floor((m - 1) / 3) + 1 };
+      if(typeof updateBirPeriodSummary === 'function') updateBirPeriodSummary();
+      renderBirList();
+    }
+    setTimeout(() => {
+      const listEl = document.getElementById('birList');
+      if(listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   }, 60);
 }
 window.jumpToChecklistItem = jumpToChecklistItem;
@@ -1473,48 +1857,11 @@ window.openLightbox = openLightbox;
 window.closeLightbox = closeLightbox;
 
 
-const DEFAULT_BIR_FORMS = [
-  // ========== MONTHLY ==========
-  // --- BIR ---
-  { cat: 'BIR',  code: '0619-E',  desc: 'Monthly Remittance of Expanded Withholding Tax',        freq: 'MONTHLY', dueDay: 10 },
-  { cat: 'BIR',  code: '0619-F',  desc: 'Monthly Remittance of Final Withholding Tax',            freq: 'MONTHLY', dueDay: 10 },
-  { cat: 'BIR',  code: '1601-C',  desc: 'Monthly Remittance of Compensation Tax Withheld',        freq: 'MONTHLY', dueDay: 10 },
-  // --- PEZA ---
-  { cat: 'PEZA', code: 'EZMPR',   desc: 'Ecozone Monthly Performance Report (online submission)', freq: 'MONTHLY', dueDay: 20 },
-
-  // ========== QUARTERLY ==========
-  // --- BIR ---
-  { cat: 'BIR',  code: '1601-EQ', desc: 'Quarterly Remittance of Creditable EWT',                  freq: 'QUARTERLY', dueDay: 30 },
-  { cat: 'BIR',  code: '1601-FQ', desc: 'Quarterly Remittance of Final Withholding Tax',           freq: 'QUARTERLY', dueDay: 30 },
-  { cat: 'BIR',  code: 'QAP',     desc: 'Quarterly Alphalist of Payees (with 1601-EQ)',            freq: 'QUARTERLY', dueDay: 30 },
-  { cat: 'BIR',  code: '2307',    desc: 'Certificate of Creditable Tax Withheld (issue to payees)',freq: 'QUARTERLY', dueDay: 20 },
-  { cat: 'BIR',  code: '2550Q',   desc: 'Quarterly VAT Return',                                    freq: 'QUARTERLY', dueDay: 25 },
-  { cat: 'BIR',  code: 'SLSP',    desc: 'Summary List of Sales & Purchases (with 2550Q)',          freq: 'QUARTERLY', dueDay: 25 },
-  { cat: 'BIR',  code: '1702Q',   desc: 'Quarterly Corporate Income Tax Return',                   freq: 'QUARTERLY', dueDay: 60 },
-  { cat: 'BIR',  code: 'SAWT',    desc: 'Summary Alphalist of Withholding Taxes (with 1702Q)',     freq: 'QUARTERLY', dueDay: 60 },
-  // --- PEZA ---
-  { cat: 'PEZA', code: 'QITR-PEZA',desc: 'Quarterly ITR Copy + O.R. submitted to PEZA',            freq: 'QUARTERLY', dueDay: 75 },
-
-  // ========== ANNUAL ==========
-  // --- BIR ---
-  { cat: 'BIR',  code: '1604-C',  desc: 'Annual Info Return of Income Taxes Withheld – Compensation', freq: 'ANNUAL', dueMonth: 1, dueDay: 31 },
-  { cat: 'BIR',  code: '2316',    desc: 'Certificate of Compensation Payment / Tax Withheld (issue to employees)', freq: 'ANNUAL', dueMonth: 1, dueDay: 31 },
-  { cat: 'BIR',  code: '1604-F',  desc: 'Annual Info Return of Final Withholding Tax',             freq: 'ANNUAL', dueMonth: 1, dueDay: 31 },
-  { cat: 'BIR',  code: 'Inventory',desc: 'Annual Inventory List (submit to BIR)',                  freq: 'ANNUAL', dueMonth: 1, dueDay: 30 },
-  { cat: 'BIR',  code: '1604-E',  desc: 'Annual Info Return of Creditable EWT',                    freq: 'ANNUAL', dueMonth: 3, dueDay: 1 },
-  { cat: 'BIR',  code: '1702 / 1702-EX / 1702-MX', desc: 'Annual Corporate Income Tax Return (attach CETI for RBEs)', freq: 'ANNUAL', dueMonth: 4, dueDay: 15 },
-  // --- PEZA ---
-  { cat: 'PEZA', code: 'CETI',    desc: 'Certificate of Entitlement to Tax Incentives (file via FIRMS before ITR)', freq: 'ANNUAL', dueMonth: 1, dueDay: 15 },
-  { cat: 'PEZA', code: 'AFS-PEZA',desc: 'Audited Financial Statements (BIR-stamped copy to PEZA)',  freq: 'ANNUAL', dueMonth: 5, dueDay: 15 },
-  { cat: 'PEZA', code: 'AROO',    desc: 'Annual Report on Actual Operations',                       freq: 'ANNUAL', dueMonth: 4, dueDay: 15 },
-  { cat: 'PEZA', code: 'ATIR/ABR',desc: 'Annual Tax Incentives Report / Annual Benefits Report (via FIRMS)', freq: 'ANNUAL', dueMonth: 7, dueDay: 15 },
-  // --- SEC ---
-  { cat: 'SEC',  code: 'GIS',     desc: 'General Information Sheet (30 days after annual stockholders meeting)', freq: 'ANNUAL', dueMonth: 4, dueDay: 30 },
-  { cat: 'SEC',  code: 'AFS-SEC', desc: 'Audited Financial Statements to SEC (based on SEC reg. no. last digit)', freq: 'ANNUAL', dueMonth: 6, dueDay: 30 },
-  // --- LGU ---
-  { cat: 'LGU',  code: 'Business Permit', desc: 'Mayor\'s / Business Permit Renewal',               freq: 'ANNUAL', dueMonth: 1, dueDay: 20 },
-  { cat: 'LGU',  code: 'Barangay Clearance', desc: 'Barangay Business Clearance Renewal',           freq: 'ANNUAL', dueMonth: 1, dueDay: 20 },
-];
+// NOTE: The default checklist seeding has been removed.
+// The checklist now starts empty and users add their own items via "+ Add Item".
+// Any item added flows into the `_bir_forms` Firestore collection and is
+// automatically picked up by the Team Schedule (calendar) and the Dashboard,
+// because both subscribe to the same `_birForms` array via onSnapshot below.
 
 let _birForms = [];
 let _birCompletions = {};
@@ -1526,40 +1873,30 @@ let _editingBirId = null;
 function initBir(){
   const { db, onSnapshot, collection, NS } = window.FB;
 
+  // One-time cleanup: remove ALL auto-seeded checklist items so the
+  // checklist starts empty and users can write their own entries.
+  // Any document whose id starts with "seed_" was created by the old
+  // auto-seeding logic and is removed here. User-added items keep
+  // Firestore-generated random IDs and are NOT touched.
   (async () => {
-    const { getDoc, doc, setDoc, writeBatch, deleteDoc, collection, onSnapshot } = window.FB;
-    const seedRef = doc(db, NS + '_meta', 'checklistSeededV4');
-    const seedDoc = await getDoc(seedRef);
-    if(!seedDoc.exists()){
-      // Clean up removed categories' seed items (SSS/PHIC/HDMF from V2, DOLE/DENR from V3)
-      const removedSeedIds = [
-        // V2 → V3 removals (SSS / PhilHealth / Pag-IBIG)
-        'seed_SSS_MONTHLY_SSSR5',
-        'seed_SSS_MONTHLY_SSSR3',
-        'seed_SSS_MONTHLY_SSSML1',
-        'seed_PHIC_MONTHLY_PHICRF1',
-        'seed_HDMF_MONTHLY_MCRF',
-        'seed_HDMF_MONTHLY_STLRF',
-        // V3 → V4 removals (DOLE / DENR)
-        'seed_DOLE_ANNUAL_AMR',
-        'seed_DOLE_ANNUAL_AWAIR',
-        'seed_DENR_QUARTERLY_SMR',
-        'seed_DENR_ANNUAL_CMR'
-      ];
-      for(const id of removedSeedIds){
-        try { await deleteDoc(doc(db, NS + '_bir_forms', id)); } catch(e){}
+    const { getDoc, doc, writeBatch, getDocs, collection } = window.FB;
+    const cleanupRef = doc(db, NS + '_meta', 'checklistCleanedV1');
+    try {
+      const cleanupDoc = await getDoc(cleanupRef);
+      if(!cleanupDoc.exists()){
+        const snap = await getDocs(collection(db, NS + '_bir_forms'));
+        const batch = writeBatch(db);
+        let count = 0;
+        snap.forEach(d => {
+          if(d.id.startsWith('seed_')){
+            batch.delete(d.ref);
+            count++;
+          }
+        });
+        batch.set(cleanupRef, { at: new Date(), removed: count });
+        await batch.commit();
       }
-
-      const batch = writeBatch(db);
-      DEFAULT_BIR_FORMS.forEach((f, idx) => {
-        const safeCode = f.code.replace(/[^A-Za-z0-9]/g,'');
-        const seedId = `seed_${f.cat}_${f.freq}_${safeCode}`;
-        const dref = doc(db, NS + '_bir_forms', seedId);
-        batch.set(dref, { ...f, order: idx, createdAt: new Date() }, { merge: true });
-      });
-      batch.set(seedRef, { at: new Date() });
-      try { await batch.commit(); } catch(e){ console.warn('seed failed', e); }
-    }
+    } catch(e){ console.warn('checklist cleanup failed', e); }
   })();
 
   onSnapshot(collection(db, NS + '_bir_forms'), snap => {
@@ -1601,36 +1938,58 @@ function initBir(){
 }
 
 function buildBirPeriodSelect(){
-  const sel = document.getElementById('birPeriodSelect');
+  // The period selector is now an unbounded <input type="month">. Default
+  // to the current month — user can navigate to ANY year/month with the
+  // native calendar picker or with the prev/next buttons.
+  const inp = document.getElementById('birPeriodInput');
   const now = new Date();
-  const opts = [];
-  // Fixed range: March 2026 → December 2027
-  const startY = 2026, startM = 3;  // March 2026 (1-indexed month)
-  const endY = 2027,   endM = 12;   // December 2027
-  for(let y = startY; y <= endY; y++){
-    const mStart = (y === startY) ? startM : 1;
-    const mEnd   = (y === endY)   ? endM   : 12;
-    for(let m = mStart; m <= mEnd; m++){
-      const d = new Date(y, m - 1, 1);
-      opts.push({
-        val: JSON.stringify({ year: y, month: m, q: Math.floor((m-1)/3)+1 }),
-        label: `${MONTH_LONG[m-1]} ${y} (Q${Math.floor((m-1)/3)+1})`
-      });
-    }
-  }
-  sel.innerHTML = opts.map(o => `<option value='${o.val}'>${o.label}</option>`).join('');
+  const y = now.getFullYear(), m = now.getMonth() + 1;
+  inp.value = `${y}-${String(m).padStart(2, '0')}`;
+  _birCurrentPeriod = { year: y, month: m, q: Math.floor((m - 1) / 3) + 1 };
+  updateBirPeriodSummary();
+}
 
-  // Default selection: current month if in range, otherwise start of range
-  const curY = now.getFullYear(), curM = now.getMonth() + 1;
-  let defY = curY, defM = curM;
-  const afterStart = (curY > startY) || (curY === startY && curM >= startM);
-  const beforeEnd  = (curY < endY)   || (curY === endY   && curM <= endM);
-  if(!(afterStart && beforeEnd)){ defY = startY; defM = startM; }
-  const defVal = JSON.stringify({ year: defY, month: defM, q: Math.floor((defM-1)/3)+1 });
-  sel.value = defVal;
-  sel.onchange = () => {
-    try { _birCurrentPeriod = JSON.parse(sel.value); renderBirList(); } catch(e){}
-  };
+function onBirPeriodInputChange(){
+  const inp = document.getElementById('birPeriodInput');
+  const v = inp.value;  // YYYY-MM
+  if(!v) return;
+  const [yy, mm] = v.split('-').map(Number);
+  if(!yy || !mm || mm < 1 || mm > 12) return;
+  _birCurrentPeriod = { year: yy, month: mm, q: Math.floor((mm - 1) / 3) + 1 };
+  updateBirPeriodSummary();
+  renderBirList();
+}
+window.onBirPeriodInputChange = onBirPeriodInputChange;
+
+function shiftBirPeriod(delta){
+  const cur = _birCurrentPeriod || { year: new Date().getFullYear(), month: new Date().getMonth() + 1 };
+  let y = cur.year, m = cur.month + delta;
+  while(m < 1){ m += 12; y--; }
+  while(m > 12){ m -= 12; y++; }
+  const inp = document.getElementById('birPeriodInput');
+  inp.value = `${y}-${String(m).padStart(2, '0')}`;
+  _birCurrentPeriod = { year: y, month: m, q: Math.floor((m - 1) / 3) + 1 };
+  updateBirPeriodSummary();
+  renderBirList();
+}
+window.shiftBirPeriod = shiftBirPeriod;
+
+function goToBirToday(){
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth() + 1;
+  const inp = document.getElementById('birPeriodInput');
+  inp.value = `${y}-${String(m).padStart(2, '0')}`;
+  _birCurrentPeriod = { year: y, month: m, q: Math.floor((m - 1) / 3) + 1 };
+  updateBirPeriodSummary();
+  renderBirList();
+}
+window.goToBirToday = goToBirToday;
+
+function updateBirPeriodSummary(){
+  const el = document.getElementById('birPeriodSummary');
+  if(!el || !_birCurrentPeriod) return;
+  const p = _birCurrentPeriod;
+  el.textContent = `${MONTH_LONG[p.month - 1]} ${p.year} · Q${p.q}`;
 }
 
 function setBirFreq(f){
@@ -1668,6 +2027,14 @@ function computeDueDate(form, period){
     const clamp = Math.min(form.dueDay || 1, new Date(y, mm, 0).getDate());
     return new Date(y, mm - 1, clamp);
   }
+  if(form.freq === 'ONETIME'){
+    // Single specific date — does not depend on period
+    if(form.dueDate){
+      const [yy, mm, dd] = form.dueDate.split('-').map(Number);
+      if(yy && mm && dd) return new Date(yy, mm - 1, dd);
+    }
+    return new Date();
+  }
   return new Date();
 }
 
@@ -1675,6 +2042,7 @@ function periodKey(form, period){
   if(form.freq === 'MONTHLY') return `M-${period.year}-${String(period.month).padStart(2,'0')}`;
   if(form.freq === 'QUARTERLY') return `Q-${period.year}-Q${period.q}`;
   if(form.freq === 'ANNUAL') return `A-${period.year}`;
+  if(form.freq === 'ONETIME') return `O-${form.dueDate || 'nodate'}`;
   return '';
 }
 
@@ -1701,7 +2069,16 @@ function renderBirList(){
     _birCurrentPeriod = { year: now.getFullYear(), month: now.getMonth()+1, q: Math.floor(now.getMonth()/3)+1 };
   }
 
-  const forms = _birForms.filter(f => _birFreqFilter === 'ALL' || f.freq === _birFreqFilter);
+  // Filter by tab AND, for ONETIME items, only show those whose date falls in the current viewed month
+  const forms = _birForms.filter(f => {
+    if(_birFreqFilter !== 'ALL' && f.freq !== _birFreqFilter) return false;
+    if(f.freq === 'ONETIME'){
+      if(!f.dueDate) return false;
+      const [yy, mm] = f.dueDate.split('-').map(Number);
+      return yy === _birCurrentPeriod.year && mm === _birCurrentPeriod.month;
+    }
+    return true;
+  });
   const rows = forms.map(f => {
     const pk = periodKey(f, _birCurrentPeriod);
     const due = computeDueDate(f, _birCurrentPeriod);
@@ -1711,8 +2088,12 @@ function renderBirList(){
     const doneMeta = done
       ? `<div class="bir-done-meta">✓ ${escapeHtml(done.by || '—')} · ${done.at && done.at.toDate ? done.at.toDate().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : ''}</div>`
       : '';
-    const canEdit = window.__me.role === 'admin';
-    const freqLabel = f.freq === 'MONTHLY' ? 'Monthly' : f.freq === 'QUARTERLY' ? 'Quarterly' : 'Annual';
+    // Any logged-in user can edit/delete checklist items
+    const canEdit = true;
+    const freqLabel = f.freq === 'MONTHLY' ? 'Monthly'
+      : f.freq === 'QUARTERLY' ? 'Quarterly'
+      : f.freq === 'ONETIME' ? 'One-time'
+      : 'Annual';
     const cat = f.cat || 'BIR';
     const catLabel = CAT_PILL_LABELS[cat] || cat;
 
@@ -1751,12 +2132,21 @@ function renderBirList(){
   }).join('');
   el.innerHTML = rows || '<div class="empty">No forms match this period.</div>';
 
-  const all = _birForms.map(f => {
-    const pk = periodKey(f, _birCurrentPeriod);
-    return { f, done: !!_birCompletions[`${f.id}__${pk}`] };
+  // Build the period summary: "October 2026 · Q4 · 3 of 12 completed"
+  // (counts only items whose periodKey is meaningful for this view, including
+  //  ONETIME items dated to the current month)
+  const inPeriod = _birForms.filter(f => {
+    if(f.freq !== 'ONETIME') return true;
+    if(!f.dueDate) return false;
+    const [yy, mm] = f.dueDate.split('-').map(Number);
+    return yy === _birCurrentPeriod.year && mm === _birCurrentPeriod.month;
   });
-  const doneCount = all.filter(x => x.done).length;
-  document.getElementById('birPeriodSummary').textContent = `· ${doneCount} of ${all.length} completed`;
+  const doneCount = inPeriod.filter(f => !!_birCompletions[`${f.id}__${periodKey(f, _birCurrentPeriod)}`]).length;
+  const summaryEl = document.getElementById('birPeriodSummary');
+  if(summaryEl && _birCurrentPeriod){
+    const p = _birCurrentPeriod;
+    summaryEl.textContent = `${MONTH_LONG[p.month - 1]} ${p.year} · Q${p.q} · ${doneCount} of ${inPeriod.length} completed`;
+  }
 
   updateBirTabCounts();
   updateBirTabBadge();
@@ -1764,13 +2154,13 @@ function renderBirList(){
 window.renderBirList = renderBirList;
 
 function updateBirTabCounts(){
-  const counts = { ALL:0, MONTHLY:0, QUARTERLY:0, ANNUAL:0 };
+  const counts = { ALL:0, MONTHLY:0, QUARTERLY:0, ANNUAL:0, ONETIME:0 };
   _birForms.forEach(f => {
     const pk = periodKey(f, _birCurrentPeriod);
     const done = !!_birCompletions[`${f.id}__${pk}`];
     if(!done){
       counts.ALL++;
-      counts[f.freq]++;
+      if(counts[f.freq] !== undefined) counts[f.freq]++;
     }
   });
   Object.keys(counts).forEach(k => {
@@ -1804,8 +2194,8 @@ async function toggleBirDone(formId, pk){
   const existing = _birCompletions[compId];
   try {
     if(existing){
-      if(existing.by !== window.__me.name && window.__me.role !== 'admin'){
-        if(!confirm(`This was completed by ${existing.by}. Uncheck as admin?`)){
+      if(existing.by !== window.__me.name){
+        if(!confirm(`This was completed by ${existing.by}. Uncheck anyway?`)){
           return;
         }
       }
@@ -1859,7 +2249,8 @@ function renderPhotoGallery(){
     return;
   }
   gallery.innerHTML = photos.map((p, i) => {
-    const canDel = window.__me.role === 'admin' || p.addedBy === window.__me.name;
+    // Any logged-in user can delete any photo
+    const canDel = true;
     const addedStr = p.addedBy ? `by ${escapeHtml(p.addedBy)}` : '';
     return `
       <div class="photo-gallery-item">
@@ -1955,10 +2346,7 @@ async function deleteChecklistPhoto(index){
   const photos = (attachments && attachments.photos) || [];
   const p = photos[index];
   if(!p) return;
-  if(p.addedBy !== window.__me.name && window.__me.role !== 'admin'){
-    toast('No permission', '', 'warn');
-    return;
-  }
+  // Permission gate removed — any logged-in user can delete any photo
   const newPhotos = photos.slice(0, index).concat(photos.slice(index+1));
   const { db, doc, setDoc, deleteDoc, NS } = window.FB;
   try {
@@ -1987,11 +2375,20 @@ function openBirAddForm(id){
     document.getElementById('birCategory').value = f.cat || 'BIR';
     document.getElementById('birCode').value = f.code || '';
     document.getElementById('birDesc').value = f.desc || '';
-    document.getElementById('birFreq').value = f.freq || 'MONTHLY';
-    document.getElementById('birDueDay').value = f.freq === 'ANNUAL' ? (f.dueDay || '') : (f.dueDay || '');
-    if(f.freq === 'ANNUAL'){
-      document.getElementById('birDueMonth').value = f.dueMonth || 1;
-      document.getElementById('birDueDayAnnual').value = f.dueDay || 1;
+    const freq = f.freq || 'MONTHLY';
+    selectBirFreq(freq);
+    if(freq === 'ANNUAL'){
+      const mm = String(f.dueMonth || 1).padStart(2, '0');
+      const dd = String(f.dueDay || 1).padStart(2, '0');
+      // Year is just a placeholder for the date input — only month/day matter.
+      const refYear = new Date().getFullYear();
+      document.getElementById('birDueDate').value = `${refYear}-${mm}-${dd}`;
+    } else if(freq === 'QUARTERLY'){
+      document.getElementById('birDueDayQ').value = f.dueDay || '';
+    } else if(freq === 'ONETIME'){
+      document.getElementById('birOnetimeDate').value = f.dueDate || '';
+    } else {
+      document.getElementById('birDueDay').value = f.dueDay || '';
     }
     delBtn.style.display = '';
   } else {
@@ -1999,25 +2396,28 @@ function openBirAddForm(id){
     document.getElementById('birCategory').value = 'BIR';
     document.getElementById('birCode').value = '';
     document.getElementById('birDesc').value = '';
-    document.getElementById('birFreq').value = 'MONTHLY';
     document.getElementById('birDueDay').value = 10;
-    document.getElementById('birDueMonth').value = '';
-    document.getElementById('birDueDayAnnual').value = '';
+    document.getElementById('birDueDayQ').value = 30;
+    document.getElementById('birDueDate').value = '';
+    document.getElementById('birOnetimeDate').value = '';
+    selectBirFreq('MONTHLY');
     delBtn.style.display = 'none';
   }
-  toggleBirFreqFields();
   document.getElementById('birOverlay').classList.add('open');
 }
 window.openBirAddForm = openBirAddForm;
 
-function toggleBirFreqFields(){
-  const freq = document.getElementById('birFreq').value;
-  document.getElementById('birDueMonthWrap').style.display = freq === 'ANNUAL' ? '' : 'none';
-  document.getElementById('birDueDay').parentElement.style.display = freq === 'ANNUAL' ? 'none' : '';
+function selectBirFreq(f){
+  document.getElementById('birFreq').value = f;
+  document.querySelectorAll('.freq-seg-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.freq === f);
+  });
+  document.getElementById('birMonthlyWrap').style.display   = (f === 'MONTHLY')   ? '' : 'none';
+  document.getElementById('birQuarterlyWrap').style.display = (f === 'QUARTERLY') ? '' : 'none';
+  document.getElementById('birAnnualWrap').style.display    = (f === 'ANNUAL')    ? '' : 'none';
+  document.getElementById('birOnetimeWrap').style.display   = (f === 'ONETIME')   ? '' : 'none';
 }
-document.addEventListener('change', e => {
-  if(e.target && e.target.id === 'birFreq') toggleBirFreqFields();
-});
+window.selectBirFreq = selectBirFreq;
 
 function closeBirForm(){
   document.getElementById('birOverlay').classList.remove('open');
@@ -2033,15 +2433,30 @@ async function saveBirForm(){
 
   let payload = { cat, code, desc, freq };
   if(freq === 'ANNUAL'){
-    const mm = parseInt(document.getElementById('birDueMonth').value, 10);
-    const dd = parseInt(document.getElementById('birDueDayAnnual').value, 10);
-    if(!mm || mm < 1 || mm > 12){ toast('Please enter a valid month (1-12)', '', 'warn'); return; }
-    if(!dd || dd < 1 || dd > 31){ toast('Please enter a valid day (1-31)', '', 'warn'); return; }
+    const v = document.getElementById('birDueDate').value; // YYYY-MM-DD
+    if(!v){ toast('Please pick the annual due date', '', 'warn'); return; }
+    const parts = v.split('-').map(Number);
+    const mm = parts[1], dd = parts[2];
+    if(!mm || mm < 1 || mm > 12 || !dd || dd < 1 || dd > 31){
+      toast('Invalid date', '', 'warn'); return;
+    }
     payload.dueMonth = mm;
     payload.dueDay = dd;
-  } else {
+  } else if(freq === 'QUARTERLY'){
+    const dd = parseInt(document.getElementById('birDueDayQ').value, 10);
+    if(!dd || dd < 1 || dd > 90){ toast('Please enter days after quarter-end (1-90)', '', 'warn'); return; }
+    payload.dueDay = dd;
+  } else if(freq === 'ONETIME'){
+    const v = document.getElementById('birOnetimeDate').value; // YYYY-MM-DD
+    if(!v){ toast('Please pick the date', '', 'warn'); return; }
+    const parts = v.split('-').map(Number);
+    if(parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]){
+      toast('Invalid date', '', 'warn'); return;
+    }
+    payload.dueDate = v;
+  } else { // MONTHLY
     const dd = parseInt(document.getElementById('birDueDay').value, 10);
-    if(!dd || dd < 1){ toast('Please enter a due day', '', 'warn'); return; }
+    if(!dd || dd < 1 || dd > 31){ toast('Please enter due day of next month (1-31)', '', 'warn'); return; }
     payload.dueDay = dd;
   }
 
@@ -2226,7 +2641,8 @@ function renderChat(){
   }
   el.innerHTML = _chatMsgs.map(m => {
     const mine = m.name === window.__me.name;
-    const canDel = window.__me.role === 'admin' || mine;
+    // Any logged-in user can delete any chat message
+    const canDel = true;
     const t = m.at && m.at.toDate ? m.at.toDate() : null;
     const timeStr = t ? t.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : '';
     return `
@@ -2283,9 +2699,7 @@ window.sendChat = sendChat;
 async function deleteChatMsg(id){
   const m = _chatMsgs.find(x => x.id === id);
   if(!m) return;
-  if(m.name !== window.__me.name && window.__me.role !== 'admin'){
-    toast('No permission to delete', '', 'warn'); return;
-  }
+  // Permission gate removed — any logged-in user can delete any chat message
   if(!confirm('Delete this message?')) return;
   const { db, doc, deleteDoc, NS } = window.FB;
   try {
@@ -2295,6 +2709,319 @@ async function deleteChatMsg(id){
   }
 }
 window.deleteChatMsg = deleteChatMsg;
+
+/* =======================================================
+   PURCHASE ORDER FORM
+======================================================= */
+function fmtPoMoney(n){
+  if(!isFinite(n) || n === 0) return '';
+  // Philippine peso symbol with 2 decimals + thousands separators
+  const fixed = Math.round(n * 100) / 100;
+  return '\u20B1 ' + fixed.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// ---------- Item rows ----------
+function poRowHtml(){
+  return `
+    <td class="po-row-num">
+      <span class="po-row-n"></span>
+    </td>
+    <td><input class="po-cell" type="text" data-pofield="desc"></td>
+    <td class="po-col-unit"><input class="po-cell" type="text" data-pofield="unit"></td>
+    <td class="po-col-qty"><input class="po-cell po-num" type="number" step="any" min="0" data-pofield="qty" oninput="recalcPo()"></td>
+    <td class="po-col-price"><input class="po-cell po-num" type="number" step="any" min="0" data-pofield="price" oninput="recalcPo()"></td>
+    <td class="po-col-total po-total-cell po-row-total">&nbsp;</td>
+    <td class="po-col-purpose"><input class="po-cell" type="text" data-pofield="purpose"></td>
+    <td class="po-col-del no-print"><button type="button" class="po-row-del-btn" onclick="deletePoRow(this)" title="Delete row" aria-label="Delete row">✕</button></td>
+  `;
+}
+
+function addPoRow(){
+  const tbody = document.getElementById('poItemsTbody');
+  if(!tbody) return;
+  const tr = document.createElement('tr');
+  tr.className = 'po-item-row';
+  tr.innerHTML = poRowHtml();
+  tbody.appendChild(tr);
+  renumberPoRows();
+}
+window.addPoRow = addPoRow;
+
+function deletePoRow(btn){
+  const tr = btn.closest('tr');
+  if(!tr) return;
+  const tbody = tr.parentNode;
+  if(tbody.children.length <= 1){
+    if(typeof toast === 'function') toast('At least one row is required', '', 'warn');
+    return;
+  }
+  tr.remove();
+  renumberPoRows();
+  recalcPo();
+}
+window.deletePoRow = deletePoRow;
+
+function renumberPoRows(){
+  document.querySelectorAll('#poItemsTbody .po-item-row').forEach((tr, i) => {
+    const span = tr.querySelector('.po-row-n');
+    if(span) span.textContent = i + 1;
+  });
+}
+
+function recalcPo(){
+  let grand = 0;
+  document.querySelectorAll('#poItemsTbody .po-item-row').forEach(tr => {
+    const qEl = tr.querySelector('[data-pofield="qty"]');
+    const pEl = tr.querySelector('[data-pofield="price"]');
+    const tEl = tr.querySelector('.po-row-total');
+    if(!qEl || !pEl || !tEl) return;
+    const q = parseFloat(qEl.value);
+    const p = parseFloat(pEl.value);
+    if(isFinite(q) && isFinite(p) && q > 0 && p >= 0){
+      const line = q * p;
+      tEl.textContent = fmtPoMoney(line);
+      grand += line;
+    } else {
+      tEl.innerHTML = '&nbsp;';
+    }
+  });
+  const gEl = document.getElementById('poGrandTotal');
+  if(gEl) gEl.textContent = grand > 0 ? fmtPoMoney(grand) : '\u20B1 -';
+}
+window.recalcPo = recalcPo;
+
+// Mutually exclusive Accept / Reject checkboxes
+function poStatusToggle(el, otherKey){
+  if(el.checked){
+    const other = document.querySelector(`[data-po="status${otherKey === 'accept' ? 'Accept' : 'Reject'}"]`);
+    if(other) other.checked = false;
+  }
+}
+window.poStatusToggle = poStatusToggle;
+
+// ---------- Fast print (iframe strategy) ----------
+// We render the PO into a hidden iframe and call print() on the iframe so the
+// browser only lays out a tiny document — the print dialog opens nearly
+// instantly, and the main page is never disturbed.
+//
+// IMPORTANT: `afterprint` does not fire reliably across browsers. It's
+// frequently skipped when:
+//   - the user picks "Save as PDF" instead of a real printer,
+//   - the user cancels the print dialog, or
+//   - print() is called on an iframe (browser-specific quirks).
+//
+// So we don't rely on afterprint as the only way to clean up. Earlier we
+// guarded the function with an `_poPrintInFlight = true` flag that was only
+// reset on afterprint, which meant the *second* press of Print did nothing —
+// the flag was stuck at true. Now we do it the other way around: every new
+// printPo() call sweeps away any leftover iframe from a previous cycle, so
+// the second click always works regardless of what the browser did with the
+// first dialog.
+let _poPrintLockUntil = 0;
+function printPo(){
+  // Cheap anti-double-fire guard: ignore the same click being delivered twice
+  // in rapid succession. Auto-expires after ~400ms so a legitimate retry is
+  // never blocked.
+  const now = Date.now();
+  if(now < _poPrintLockUntil) return;
+  _poPrintLockUntil = now + 400;
+
+  // Sweep away any leftover iframe from a previous print cycle. THIS is what
+  // makes the second click reliable when afterprint didn't fire on the first.
+  document.querySelectorAll('iframe#poPrintFrame').forEach(el => {
+    try { el.remove(); } catch(e){}
+  });
+
+  // Light "preparing…" feedback so the click feels responsive.
+  try { if(typeof toast === 'function') toast('Preparing PDF…', '', 'info'); } catch(e){}
+
+  // Defer the heavy work one frame so the toast can paint first.
+  requestAnimationFrame(() => {
+    try {
+      const original = document.getElementById('poPage');
+      if(!original) return;
+
+      // 1. Mirror current input values into their `value`/`checked` attributes
+      //    so cloneNode(true) preserves them. (Cloning copies attributes, not
+      //    the live value/checked state of form controls.)
+      original.querySelectorAll('input').forEach(el => {
+        if(el.type === 'checkbox' || el.type === 'radio'){
+          if(el.checked) el.setAttribute('checked', '');
+          else el.removeAttribute('checked');
+        } else {
+          el.setAttribute('value', el.value || '');
+        }
+      });
+      original.querySelectorAll('textarea').forEach(el => {
+        el.textContent = el.value || '';
+      });
+
+      // 2. Clone the PO page and strip anything tagged .no-print
+      //    (toolbar buttons, "+ Add Row", per-row delete, etc.)
+      const clone = original.cloneNode(true);
+      clone.querySelectorAll('.no-print').forEach(el => el.remove());
+      // Also drop the empty-state placeholder for the photo grid
+      clone.querySelectorAll('.po-attach-empty').forEach(el => el.remove());
+
+      // 3. Pull all the inline <style> blocks from the parent document so
+      //    the iframe renders the PO with the exact same CSS (including the
+      //    @media print rules that produce the official look).
+      const styles = Array.from(document.querySelectorAll('style'))
+        .map(s => s.textContent).join('\n');
+
+      // 4. Build a minimal self-contained HTML doc for the iframe.
+      const html = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
+        + '<title>Purchase Order</title>'
+        + '<style>' + styles + '</style>'
+        + '<style>'
+        + 'html,body{margin:0;padding:0;background:#fff;}'
+        // Force the PO page to be visible in the iframe regardless of which
+        // tab was active in the parent document at the time of cloning.
+        + '#page-po{display:block !important;}'
+        + '.page-content{display:block !important;}'
+        + '</style></head><body>'
+        + '<div id="page-po" class="page-content">' + clone.outerHTML + '</div>'
+        + '</body></html>';
+
+      // 5. Create a fresh hidden iframe.
+      const iframe = document.createElement('iframe');
+      iframe.id = 'poPrintFrame';
+      iframe.setAttribute('aria-hidden', 'true');
+      iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+      document.body.appendChild(iframe);
+
+      const removeIframe = () => {
+        if(iframe && iframe.parentNode){
+          try { iframe.remove(); } catch(e){}
+        }
+      };
+
+      const triggerPrint = () => {
+        try {
+          // afterprint cleans up promptly when it fires; if it doesn't, the
+          // sweep at the top of the next printPo() call will get this iframe.
+          iframe.contentWindow.addEventListener('afterprint', removeIframe);
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+        } catch(e){
+          console.error('printPo: print failed', e);
+          removeIframe();
+        }
+      };
+
+      // 6. Write the HTML into the iframe and kick off printing once ready.
+      const idoc = iframe.contentDocument || iframe.contentWindow.document;
+      idoc.open();
+      idoc.write(html);
+      idoc.close();
+
+      if(idoc.readyState === 'complete'){
+        requestAnimationFrame(triggerPrint);
+      } else {
+        iframe.addEventListener('load', () => requestAnimationFrame(triggerPrint), { once: true });
+        // Fallback: if 'load' never fires (rare), try after a short delay.
+        setTimeout(() => { if(iframe.parentNode) triggerPrint(); }, 400);
+      }
+    } catch(e){
+      console.error('printPo error:', e);
+    }
+  });
+}
+window.printPo = printPo;
+
+// ---------- Reference photos (session-only) ----------
+let _poPhotos = []; // [{ name, data (data: URL) }]
+
+async function handlePoPhotos(input){
+  const files = Array.from(input.files || []);
+  input.value = ''; // allow re-selecting same file
+  if(!files.length) return;
+  for(const f of files){
+    if(!f.type.startsWith('image/')){
+      toast('Skipped', `${f.name} is not an image`, 'warn');
+      continue;
+    }
+    try {
+      const dataUrl = await compressImage(f, 1600, 0.85);
+      _poPhotos.push({ name: f.name, data: dataUrl });
+    } catch(e){
+      toast('Compression failed', f.name, 'danger');
+    }
+  }
+  renderPoPhotos();
+}
+window.handlePoPhotos = handlePoPhotos;
+
+function renderPoPhotos(){
+  const grid = document.getElementById('poAttachGrid');
+  const section = document.getElementById('poAttachmentsSection');
+  if(!grid || !section) return;
+  if(!_poPhotos.length){
+    grid.innerHTML = '<div class="po-attach-empty no-print">No reference photos attached.</div>';
+    section.classList.remove('po-has-photos');
+    return;
+  }
+  section.classList.add('po-has-photos');
+  grid.innerHTML = _poPhotos.map((p, i) => `
+    <div class="po-attach-item">
+      <button type="button" class="po-attach-del no-print" onclick="deletePoPhoto(${i})" title="Remove">✕</button>
+      <img src="${p.data}" alt="${escapeHtml(p.name)}">
+      <div class="po-attach-caption">${escapeHtml(p.name)}</div>
+    </div>
+  `).join('');
+}
+
+function deletePoPhoto(index){
+  if(!confirm('Remove this reference photo?')) return;
+  _poPhotos.splice(index, 1);
+  renderPoPhotos();
+}
+window.deletePoPhoto = deletePoPhoto;
+
+// ---------- Reset ----------
+function resetPoForm(){
+  if(!confirm('Clear all fields on this Purchase Order? Reference photos will also be removed.')) return;
+  // Clear top fields (data-po) — but RESTORE default signature values rather than blanking
+  const sigDefaults = {
+    preparedName: 'Lonelle John Alcaide',
+    preparedTitle: 'Accounting Staff',
+    notedName: 'Genelyn T. Repil',
+    notedTitle: 'Accounting Supervisor',
+    approvedName: 'Dogyu Jang',
+    approvedTitle: 'Managing Director'
+  };
+  document.querySelectorAll('#page-po [data-po]').forEach(el => {
+    const key = el.getAttribute('data-po');
+    if(el.type === 'checkbox'){ el.checked = false; }
+    else if(sigDefaults[key]){ el.value = sigDefaults[key]; }
+    else { el.value = ''; }
+  });
+  // Reset rows: clear and re-create 10 fresh rows
+  const tbody = document.getElementById('poItemsTbody');
+  if(tbody){
+    tbody.innerHTML = '';
+    for(let i = 0; i < 10; i++) addPoRow();
+  }
+  // Clear photos
+  _poPhotos = [];
+  renderPoPhotos();
+  // Reset grand total display
+  const g = document.getElementById('poGrandTotal');
+  if(g) g.textContent = '\u20B1 -';
+}
+window.resetPoForm = resetPoForm;
+
+// ---------- Initial setup on load ----------
+function initPoForm(){
+  const tbody = document.getElementById('poItemsTbody');
+  if(tbody && tbody.children.length === 0){
+    for(let i = 0; i < 10; i++) addPoRow();
+  }
+  const g = document.getElementById('poGrandTotal');
+  if(g) g.textContent = '\u20B1 -';
+  renderPoPhotos();
+}
+document.addEventListener('DOMContentLoaded', initPoForm);
 
 window.checkPw = checkPw;
 </script>
